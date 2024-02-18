@@ -52,3 +52,14 @@ export async function checkEmail(params: { email: string }): Promise<{ message?:
     console.error(error);
   }
 }
+
+export async function setNickname(params: { nickname: string }): Promise<{ message?: string } | undefined> {
+  try {
+    const {
+      data: { data },
+    } = await axiosInstance.post(`${prefix}/check/nickname`, params);
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
