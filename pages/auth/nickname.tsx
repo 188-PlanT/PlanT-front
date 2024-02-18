@@ -12,6 +12,7 @@ import { login } from '@apis/authApi';
 import { useMutation } from '@tanstack/react-query';
 import { checkNickname, setNickname } from '@apis/authApi';
 import { MouseEvent, useCallback, useState } from 'react';
+import { toast } from 'react-toastify';
 
 interface NicknameProps {}
 
