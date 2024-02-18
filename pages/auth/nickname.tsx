@@ -28,7 +28,7 @@ const Nickname: NextPageWithLayout<NicknameProps> = ({}) => {
     validationSchema: Yup.object({
       nickname: Yup.string().max(8, '8자 이내 닉네임을 입력해 주세요.').required('8자 이내 닉네임을 입력해 주세요.'),
     }),
-    onSubmit: values => _login(values),
+    onSubmit: values => login(values),
   });
 
   const { mutate: _setNickname } = useMutation(setNickname, {
