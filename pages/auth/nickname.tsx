@@ -22,7 +22,7 @@ const Nickname: NextPageWithLayout<NicknameProps> = ({}) => {
   const [checked, setChecked] = useState({ nickname: false });
   const [isFirstStep, setIsFirstStep] = useState(true);
   
-  const { values, errors, touched, handleSubmit, handleChange, handleBlur } = useFormik({
+  const { values, errors, touched, handleSubmit, handleChange, handleBlur, setFieldError } = useFormik({
     initialValues: {
       nickname: '',
     },
