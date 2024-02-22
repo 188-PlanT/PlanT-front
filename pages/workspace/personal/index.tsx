@@ -6,7 +6,7 @@ import DateCarousel from '@components/DateCarousel';
 import PersonalToDoCard from '@components/PersonalToDoCard';
 import styled from '@emotion/styled';
 import AppColor from '@styles/AppColor';
-import { ScheduleStatus } from '@types/types';
+import { ScheduleStatus } from '@customTypes/types';
 import { useState, useCallback } from 'react';
 import { NextPageWithLayout } from 'pages/_app';
 

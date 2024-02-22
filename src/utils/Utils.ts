@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-export function formatDate(date: string, format: string = 'YYYY월 MM월 DD일 HH:mm') {
+export function formatDate(date: string | Date, format: string = 'YYYY월 MM월 DD일 HH:mm') {
   dayjs.locale('ko');
   return dayjs(date).format(format);
 }

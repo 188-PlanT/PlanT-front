@@ -1,5 +1,5 @@
 import axiosInstance from '@utils/axios';
-import { PostDto, PostSimpleDto } from '@_types/PostDto';
+import { PostDto, PostSimpleDto } from '@customTypes/PostDto';
 
 const prefix = '/v1/post';
 

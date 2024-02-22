@@ -11,6 +11,7 @@ import { useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
 import AppColor from '@styles/AppColor';
 import {useState} from 'react';
+import { toast } from 'react-toastify';
 
 interface MyPageProps {}
 
@@ -58,13 +59,11 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
         return;
       }
       const params = {
-        name: values.name,
-        email: values.email,
         password: values.password,
         nickname: values.nickname,
-        registerType: 1,
       };
-      _signup(params);
+      console.log(params);
+      // _signup(params);
     },
   });
   

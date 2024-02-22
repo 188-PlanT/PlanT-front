@@ -1,14 +1,14 @@
 import AppColor from '@styles/AppColor';
 import styled from '@emotion/styled';
-import {ScheduleStatus} from '@types/types';
-import {useEffect, useState, DivHTMLAttributes, DetailedHTMLProps} from 'react';
+import {ScheduleStatus, ScheduleStatusType} from '@customTypes/types';
+import {useEffect, useState, BaseHTMLAttributes, DetailedHTMLProps} from 'react';
 
 interface StatusProps {
-  status: ScheduleStatus;
+  status: ScheduleStatusType | string;
   size?: string;
 }
 
-export default function Status({status, size, ...props}: StatusProps & DetailedHTMLProps<DivHTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
+export default function Status({status, size, ...props}: StatusProps & DetailedHTMLProps<BaseHTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
   const [color, setColor] = useState(AppColor.status.todo);
 
   useEffect(() => {

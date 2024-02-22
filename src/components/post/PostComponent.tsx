@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import AppColor from '@styles/AppColor';
 import { formatDate, formatMoney } from '@utils/Utils';
-import { PostSimpleDto } from '@_types/PostDto';
+import { PostSimpleDto } from '@customTypes/PostDto';
 import Link from 'next/link';
 import { useMemo } from 'react';
 

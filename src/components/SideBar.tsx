@@ -29,10 +29,10 @@ export default function SideBar({}: SideBarProps) {
         <Line/>
 
         <WorkspaceWrapper>
-          <WorkspaceProfile workspaceName={`${nickname}의 워크스페이스1`} workspaceId={1} imageUrl={TestImage} />
+          <WorkspaceProfile workspaceName={`${nickname}의 워크스페이스1`} workspaceId={1} />
           <WorkspaceProfile workspaceName={`${nickname}의 워크스페이스2`} workspaceId={2} />
-          <WorkspaceProfile workspaceName={`${nickname}의 워크스페이스3`} workspaceId={3} imageUrl={TestImage} />
-          <WorkspaceProfile workspaceName={`${nickname}의 워크스페이스4`} workspaceId={4} imageUrl={TestImage} />
+          <WorkspaceProfile workspaceName={`${nickname}의 워크스페이스3`} workspaceId={3} />
+          <WorkspaceProfile workspaceName={`${nickname}의 워크스페이스4`} workspaceId={4} />
           <WorkspaceProfile workspaceName={`${nickname}의 워크스페이스5`} workspaceId={5} />
           <WorkspaceProfile workspaceName={`${nickname}의 워크스페이스5`} workspaceId={6} />
           

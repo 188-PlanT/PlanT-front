@@ -9,3 +9,5 @@ export enum ScheduleStatus {
   INPROGRESS = 2,
   DONE = 3,
 }
+
+export type ScheduleStatusType = 'TODO' | 'INPROGRESS' | 'DONE';

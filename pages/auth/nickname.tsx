@@ -115,7 +115,7 @@ const Nickname: NextPageWithLayout<NicknameProps> = ({}) => {
             label='정했어요!'
             disabled={!checked.nickname}
             buttonStyle={{
-              backgroundColor: checked.nickname ? AppColor.main : AppColor.border.lightgray,
+              backgroundColor: checked.nickname ? AppColor.main : AppColor.background.lightgray,
               width: '120px',
               height: '40px',
               fontSize: '16px',

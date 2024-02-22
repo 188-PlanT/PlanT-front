@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import AppColor from '@styles/AppColor';
 import Link from 'next/link';
-import {ScheduleStatus} from '@types/types';
+import {ScheduleStatus, ScheduleStatusType} from '@customTypes/types';
 import Status from '@components/Status';
 import {useState, useEffect} from 'react';
 
@@ -10,7 +10,7 @@ interface ToDoCardProps {
   scheduleId: number;
   workspaceName: string;
   scheduleName: string;
-  status: ScheduleStatus;
+  status: ScheduleStatusType | string;
 }
 
 export default function ToDoCard({
@@ -32,7 +32,7 @@ export default function ToDoCard({
       return;
     }
     setStatusArray([0, 0, 1]);
-  }, []);
+  }, [status]);
   
   return (
     <Link href={`/workspace/${workspaceId}/${scheduleId}`}>

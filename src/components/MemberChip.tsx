@@ -5,7 +5,7 @@ import AppColor from '@styles/AppColor';
 interface MemberChipProps {
   isEditable: boolean;
   user: {nickName: string; userId: number};
-  onEdit?: (userId: number) => () => {};
+  onEdit?: (userId: number) => () => void;
   color: string;
 }
 

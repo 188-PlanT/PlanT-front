@@ -6,9 +6,10 @@ import Image from 'next/image';
 import DropDownIcon from '@public/image/dropdown_icon.png';
 import AuthorityChangeConfirmModal from '@components/modals/AuthorityChangeConfirmModal';
 import useModal from '@hooks/useModal';
+import { toast } from 'react-toastify';
 
 interface AuthorityDropDownProps {
-  authority: 'ADMIN' | 'USER' | 'PENDING';
+  authority: string | 'ADMIN' | 'USER' | 'PENDING';
   userId: number;
 }
 
@@ -17,35 +18,54 @@ export default function AuthorityDropDown({authority, userId}: AuthorityDropDown
   
   const [isModalOpened, openModal, closeModal] = useModal();
   
-  const onChangeRole = useCallback(
+  const [selectedAuthority, setSelectedAuthority]  = useState<'ADMIN' | 'USER'>('USER'); 
+  
+  const onClickDropDown = useCallback(() => {
+    if(authority === 'PENDING') {
+      toast.error('아직 초대에 응답하지 않은 사용자 입니다.');
+      return;
+    };
+    setIsDropDownOpened(prev => !prev);
+  }, [authority]);
+  
+  const onClickRole = useCallback(
     (_authority: 'ADMIN' | 'USER') => () => {
-      openModal();
-      
-      if (authority === _authority) return;
-      const params = {
-        userId,
-        authority: _authority,
+      if (authority === _authority) {
+        const auth = _authority === 'ADMIN' ? '관리자' : '일반멤버';
+        toast.error(`이미 ${auth} 권한을 가진 사용자 입니다.`);
+        return;
       };
-      console.log(params);
-    }, [authority, userId]);
+      setSelectedAuthority(_authority);
+      openModal();
+    }, [openModal, authority]);
+  
+  const onClickChange = useCallback(() => {
+    const params = {
+      userId,
+      authority: selectedAuthority,
+    };
+    console.log(params, '권한 변경');
+    //TODO API 연동
+    closeModal();
+  }, [userId, selectedAuthority, closeModal]);
   
   return (
-    <div style={{position: 'relative', cursor: 'pointer'}} onClick={() => setIsDropDownOpened(prev => !prev)}>
+    <div style={{position: 'relative', cursor: 'pointer'}} onClick={onClickDropDown}>
       <div style={{display: 'flex', justifyContent: 'center', columnGap: '10px'}}>
         <div style={{flex: 1}}>{transrateAuthority(authority)}</div>
         <Image src={DropDownIcon} width={20} height={20} alt='드롭다운 아이콘' />
       </div>
       {isDropDownOpened && (
         <DropDownList>
-          <Item onClick={onChangeRole('ADMIN')}>
+          <Item onClick={onClickRole('ADMIN')}>
             관리자
           </Item>
-          <Item onClick={onChangeRole('USER')}>
+          <Item onClick={onClickRole('USER')}>
             일반멤버
           </Item>
         </DropDownList>
       )}
-      <AuthorityChangeConfirmModal isOpened={isModalOpened} closeModal={closeModal} onClickChange={() => {}} />
+      <AuthorityChangeConfirmModal isOpened={isModalOpened} closeModal={closeModal} selectedAuthority={selectedAuthority} onClickChange={onClickChange} />
     </div>
   );
 }

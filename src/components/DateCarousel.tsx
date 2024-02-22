@@ -7,8 +7,8 @@ import AppColor from '@styles/AppColor';
 interface DateCarouselProps {
   selectedYear: number;
   selectedMonth: number;
-  onClickPrevMonth: () => {};
-  onClickNextMonth: () => {};
+  onClickPrevMonth: () => void;
+  onClickNextMonth: () => void;
 }
 
 export default function DateCarousel({

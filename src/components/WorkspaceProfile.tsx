@@ -36,6 +36,8 @@ export default function WorkspaceProfile({workspaceId, workspaceName, imageUrl, 
           <Image 
             src={imageUrl}
             alt={`${workspaceName}의 워크스페이스 이미지`}
+            width='50px'
+            height='50px'
           />
         ) : (
             <FirstLetter style={{...(isFocused && {color: AppColor.etc.white})}}>{workspaceName[0]}</FirstLetter>

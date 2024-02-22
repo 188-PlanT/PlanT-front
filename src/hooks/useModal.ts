@@ -1,6 +1,6 @@
 import { useState, useCallback, ReactNode } from 'react';
 
-export default function useModals() {
+export default function useModals(): [boolean, () => void, () => void] {
 
   const [isOpened, setIsOpened] = useState(false);
 

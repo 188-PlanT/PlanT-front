@@ -1,5 +1,5 @@
 import axiosInstance from '@utils/axios';
-import { UserDto } from '@_types/UserDto';
+import { UserDto } from '@customTypes/UserDto';
 
 const prefix = '/v1/user';
 

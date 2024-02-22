@@ -2,13 +2,13 @@ import styled from '@emotion/styled';
 import {useCallback, useMemo} from 'react';
 import dayjs from 'dayjs';
 import AppColor from '@styles/AppColor';
-import {ScheduleStatus} from '@types/types';
+import {ScheduleStatus, ScheduleStatusType} from '@customTypes/types';
 
 interface DayProps {
   isSelected: boolean;
   date: Date;
-  scheduleData: {scheduleId: number; scheduleName: string; startDate: string; endDate: string; state: ScheduleStatus}[];
-  onClick: () => {};
+  scheduleData: {scheduleId: number; scheduleName: string; state: string | ScheduleStatusType}[];
+  onClick: () => void;
 }
 
 export default function Day({
@@ -19,7 +19,7 @@ export default function Day({
 }: DayProps) {
   const extractedDate = useMemo(() => dayjs(date).get('date'), [date]);
   
-  const selectColor = useCallback((status: ScheduleStatus) => {
+  const selectColor = useCallback((status: ScheduleStatusType | string) => {
     if (status === ScheduleStatus[1]) return AppColor.status.todo;
     if (status === ScheduleStatus[2]) return AppColor.status.inProgress;
     if (status === ScheduleStatus[3]) return AppColor.status.done;

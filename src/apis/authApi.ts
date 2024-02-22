@@ -1,7 +1,8 @@
 import axiosInstance from '@utils/axios';
 
-const prefix = '/v1/auth';
-export async function signup(params: { name: string; nickname: string; email: string; password: string; registerType: number }) {
+const prefix = '/v1';
+
+export async function signup(params: { email: string; password: string; }) {
   try {
     await axiosInstance.post(`${prefix}/signup`, params);
   } catch (error) {
@@ -10,16 +11,14 @@ export async function signup(params: { name: string; nickname: string; email: st
   }
 }
 
-export async function login(params: { email: string; password: string }): Promise<string | undefined> {
+export async function login(params: { email: string; password: string }): Promise<{ accessToken: string; refreshToken: string; } | undefined> {
   try {
     const {
-      data: {
-        data: { jwt },
-      },
-    } = await axiosInstance.post(`${prefix}/email`, params);
-    localStorage.setItem('accessToken', jwt);
-    axiosInstance.defaults.headers.common.Authorization = `Bearer ${jwt}`;
-    return jwt;
+      data: {accessToken, refreshToken}
+    } = await axiosInstance.post(`${prefix}/login`, params);
+    localStorage.setItem('accessToken', accessToken);
+    axiosInstance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+    return { accessToken, refreshToken };
   } catch (error) {
     console.error(error);
     throw error;

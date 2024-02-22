@@ -2,7 +2,6 @@ import CommonLayout from '@components/layouts/CommonLayout';
 import { NextPageWithLayout } from './_app';
 import PostComponent from '@components/post/PostComponent';
 import styled from '@emotion/styled';
-import { PostSimpleDto } from '@_types/PostDto';
 import { getAllPosts } from '@apis/postApi';
 import AppColor from '@styles/AppColor';
 import ShortButton from '@components/atoms/ShortButton';
@@ -27,7 +26,7 @@ interface HomeProps {
   };
 }
 */
-const Home: NextPageWithLayout<HomeProps> = ({ data = [] }) => {
+const Home: NextPageWithLayout<HomeProps> = ({}) => {
   // const { isLoggedIn } = useMe();
 
   const router = useRouter();
@@ -43,9 +42,9 @@ const Home: NextPageWithLayout<HomeProps> = ({ data = [] }) => {
   return (
     <>
       <Head>
-          <title>PLAN,T</title>
-          {false && <meta name='description' content={description} />}
-        </Head>
+        <title>PLAN,T</title>
+        <meta name='description' content={"팀 프로젝트 스케쥴을 편하게 관리할 수 있는 PLAN.T"} />
+      </Head>
       <main>
         <div style={{display: 'flex', justifyContent: 'space-between', padding: '24px 32px'}}>
           <Image 

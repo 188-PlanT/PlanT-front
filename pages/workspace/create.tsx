@@ -12,7 +12,7 @@ import { useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
 import SearchIcon from '@public/image/search_icon.png';
 import AppColor from '@styles/AppColor';
-import {useState, useCallback} from 'react';
+import {useState, useCallback, ChangeEvent} from 'react';
 import {transrateAuthority} from '@utils/Utils';
 
 interface CreateWorkspaceProps {}
@@ -44,7 +44,7 @@ const CreateWorkspace: NextPageWithLayout<CreateWorkspaceProps> = ({}) => {
 
   const [searchKeyword, setSearchKeyword] = useState('');
   
-  const [candidateUserList, setCandidateUserList] = useState<{userId: number; nickname: string; email: string}[]>([]);
+  const [candidateUserList, setCandidateUserList] = useState<{userId: number; nickName: string; email: string}[]>([]);
 
   const { values, errors, touched, handleSubmit, handleChange, handleBlur, setFieldError } = useFormik({
     initialValues: {
@@ -63,7 +63,7 @@ const CreateWorkspace: NextPageWithLayout<CreateWorkspaceProps> = ({}) => {
       console.log(userId);
     }, []);
   
-  const onChangeSearchInput = useCallback((e) => {
+  const onChangeSearchInput = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setSearchKeyword(e.target.value);
   }, []);
   
@@ -181,7 +181,7 @@ const CreateWorkspace: NextPageWithLayout<CreateWorkspaceProps> = ({}) => {
           <div style={{marginTop: '20px'}}>
             <table style={{width: '100%', borderCollapse: 'collapse', fontSize: '16px'}}>
               <tbody style={{fontWeight: '500'}}>
-                {candidateUserList.map(({userId, nickName, authority, email}) => (
+                {candidateUserList.map(({userId, nickName, email}) => (
                   <tr key={userId} style={{borderBottom: `1px solid ${AppColor.border.gray}`, padding: '4px 0px'}}>
                     <td style={{width: '16%', padding: '10px'}}>{nickName}</td>
                     <td>{email}</td>

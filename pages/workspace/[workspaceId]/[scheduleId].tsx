@@ -7,11 +7,11 @@ import Status from '@components/Status';
 import TextInput from '@components/atoms/TextInput';
 import ShortButton from '@components/atoms/ShortButton';
 import ScheduleComment from '@components/ScheduleComment';
-import {useState, useMemo, useCallback} from 'react';
+import {useState, useMemo, useCallback, ChangeEvent} from 'react';
 import {useRouter} from 'next/router';
 import styled from '@emotion/styled';
 import {formatDate} from '@utils/Utils';
-import {ScheduleStatus} from '@types/types';
+import {ScheduleStatus, ScheduleStatusType} from '@customTypes/types';
 import qs from 'qs';
 import useModal from '@hooks/useModal';
 import WorkspaceWithdrawConfirmModal from '@components/modals/WorkspaceWithdrawConfirmModal'; //TEST 용
@@ -50,14 +50,14 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
         userId: 1,
         nickName : "test11",
         content : "test chat",
-        createdAt: '20240208:10:34',
+        createdDate: '20240208:10:34',
       },
       {
         chatId : 2,
         userId: 2,
         nickName : "test22",
         content : "test chat",
-        createdAt: '20240211:13:15',
+        createdDate: '20240211:13:15',
       },
     ],
   };
@@ -69,7 +69,7 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
   }, [data]);
   
   const [comment, setComment] = useState('');
-  const onChangeComment = useCallback((e) => {
+  const onChangeComment = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setComment(e.target.value);
   }, []);
   const onSubmitComment = useCallback(() => {
@@ -78,10 +78,10 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
     setComment('');
   }, [comment]);
   
-  const onClickStatus = useCallback((status: ScheduleStatus) => () => {
+  const onClickStatus = useCallback((status: ScheduleStatusType) => () => {
     //TODO API 연결
     console.log(status);
-  }, []);
+  }, []);  
   
   const onClickEdit = useCallback(() => {
     const query = qs.stringify({
@@ -96,7 +96,7 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
       state: data.state,
     });
     router.push(`/workspace/${data.workspaceId}/edit?${query}`);
-  }, [data]);
+  }, [data, router]);
   
   return (
     <div>
@@ -108,8 +108,8 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
               <Title>{data.name}</Title>
               <div style={{display: 'flex', alignItems: 'center', columnGap: '10px'}}>
-                {['TODO', 'INPROGRESS', 'DONE']
-                  .map(s =>
+                {(['TODO', 'INPROGRESS', 'DONE'] as ScheduleStatusType[])
+                  .map((s: ScheduleStatusType) => 
                        <StatusButton
                          key={s}
                          onClick={onClickStatus(s)}
@@ -123,7 +123,7 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
             </div>
 
             <div>
-              <label style={{color: AppColor.text.secondary, fontSize: '12px', color: AppColor.text.main}}>참여 멤버</label>
+              <label style={{color: AppColor.text.secondary, fontSize: '12px'}}>참여 멤버</label>
               <div style={{display: 'flex', alignItems: 'center', columnGap: '8px', marginTop: '6px'}}>
                 {data.users
                   .map((u, i) => 

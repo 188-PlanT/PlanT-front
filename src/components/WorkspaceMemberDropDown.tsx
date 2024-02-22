@@ -7,8 +7,8 @@ import DropDownIcon from '@public/image/dropdown_icon.png';
 import FolderIcon from '@public/image/folder_icon.png';
 
 interface WorkspaceMemberDropDownProps {
-  memberList: {userName: string; userId: number}[];
-  onClickItem: (user: {userName: string; userId: number}) => () => {};
+  memberList: {nickName: string; userId: number}[];
+  onClickItem: (user: {nickName: string; userId: number}) => () => void;
 }
 
 export default function WorkspaceMemberDropDown({memberList, onClickItem}: WorkspaceMemberDropDownProps) {
@@ -32,7 +32,7 @@ export default function WorkspaceMemberDropDown({memberList, onClickItem}: Works
       {isOpend && (
         <DropDownList>
           <Item onClick={onClickAddAll}>모두 추가</Item>
-          {memberList.map((u) => <Item onClick={onClickItem(u)} key={u.userId}>{u.userName}</Item>)}
+          {memberList.map((u) => <Item onClick={onClickItem(u)} key={u.userId}>{u.nickName}</Item>)}
         </DropDownList>
       )}
     </div>

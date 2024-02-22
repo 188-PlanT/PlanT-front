@@ -12,7 +12,7 @@ import { useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
 import SearchIcon from '@public/image/search_icon.png';
 import AppColor from '@styles/AppColor';
-import {useState, useCallback} from 'react';
+import {useState, useCallback, ChangeEvent} from 'react';
 import {transrateAuthority} from '@utils/Utils';
 
 interface WorkspaceSettingProps {}
@@ -81,7 +81,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
       console.log(userId);
     }, []);
   
-  const onChangeSearchInput = useCallback((e) => {
+  const onChangeSearchInput = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setSearchKeyword(e.target.value);
   }, []);
   

@@ -12,6 +12,7 @@ import {useCallback, useState, useMemo} from 'react';
 import styled from '@emotion/styled';
 import dayjs from 'dayjs';
 import { makeCalendarArray } from '@utils/Utils';
+import {ScheduleStatusType} from '@customTypes/types';
 
 interface TeamWorkspaceProps {}
 
@@ -81,7 +82,7 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
               {calendarData.map(
                 (d) => 
                   <Day
-                    key={d}
+                    key={d.date}
                     onClick={onChangeSelectedDate(new Date(d.date))}
                     scheduleData={d.scheduleData}
                     date={new Date(d.date)}

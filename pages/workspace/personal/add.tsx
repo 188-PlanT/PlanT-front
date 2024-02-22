@@ -15,8 +15,8 @@ import styled from '@emotion/styled';
 import AppColor from '@styles/AppColor';
 import Image from 'next/image';
 import FolderIcon from '@public/image/folder_icon.png';
-import {useState, useCallback} from 'react';
-import {ScheduleStatus} from '@types/types';
+import {useState, useCallback, ChangeEvent} from 'react';
+import {ScheduleStatus, ScheduleStatusType} from '@customTypes/types';
 import {useRouter} from 'next/router';
 
 interface AddPersonalScheduleProps {}
@@ -27,12 +27,12 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
   const workspaceName = '김성훈의 마지막 잎새'; //TEST 용
   
   const [name, setName] = useState('');
-  const onChangeName = useCallback((e) => {setName(e.target.value)}, []);
+  const onChangeName = useCallback((e: ChangeEvent<HTMLInputElement>) => {setName(e.target.value)}, []);
 
-  const [selectedWorkspace, setSelectedWorkspace] = useState({});
+  const [selectedWorkspace, setSelectedWorkspace] = useState<{workspaceName: string; workspaceId: number} | null>(null);
   
   const [memberList, setMemberList] = useState([{nickName: '188 코딩클럽', userId: 10}, {nickName: '188 밴드', userId: 11}, {nickName: '김성훈의 마지막 잎새', userId: 13}]);
-  const [selectedMemberList, setSelectedMemberList] = useState<{nickname: string; userId: number}[]>([]);
+  const [selectedMemberList, setSelectedMemberList] = useState<{nickName: string; userId: number}[]>([]);
   const onSelectMember = useCallback(
     (user: {nickName: string; userId: number}) => () => {
       if (selectedMemberList.filter(u => u.userId === user.userId).length !== 0) return;
@@ -62,7 +62,7 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
   
   const [contentHtml, setContentHtml] = useState('');
   
-  const [selectedStatus, setSelectedStatus] = useState<ScheduleStatus>('TODO');
+  const [selectedStatus, setSelectedStatus] = useState<ScheduleStatusType>('TODO');
   
   const onClickCancel = useCallback(() => {
     router.back();
@@ -103,6 +103,7 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
             {selectedMemberList
               .map((u, i) => 
                 <MemberChip
+                  key={u.userId}
                   color={AppColor.memberChip[Object.keys(AppColor.memberChip)[i]]}
                   isEditable
                   user={u}
@@ -144,22 +145,22 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
           <div style={{display: 'flex', alignItems: 'center', columnGap: '14px'}}>
             <div style={{color: AppColor.text.main, fontSize: '18px', fontWeight: 'bold', opacity: '0.9'}}>진행도</div>
             <StatusButton
-              onClick={() => {setSelectedStatus(ScheduleStatus[1])}}
+              onClick={() => {setSelectedStatus(ScheduleStatus[1] as ScheduleStatusType)}}
               style={{...(selectedStatus === ScheduleStatus[1] && {border: '2px solid black'})}}
             >
-              <Status size={'22px'} status={ScheduleStatus[1]} />
+              <Status size={'22px'} status={ScheduleStatus[1] as ScheduleStatusType} />
             </StatusButton>
             <StatusButton
-              onClick={() => {setSelectedStatus(ScheduleStatus[2])}}
+              onClick={() => {setSelectedStatus(ScheduleStatus[2] as ScheduleStatusType)}}
               style={{...(selectedStatus === ScheduleStatus[2] && {border: '2px solid black'})}}
             >
-              <Status size={'22px'} status={ScheduleStatus[2]} />
+              <Status size={'22px'} status={ScheduleStatus[2] as ScheduleStatusType} />
             </StatusButton>
             <StatusButton
-              onClick={() => {setSelectedStatus(ScheduleStatus[3])}}
+              onClick={() => {setSelectedStatus(ScheduleStatus[3] as ScheduleStatusType)}}
               style={{...(selectedStatus === ScheduleStatus[3] && {border: '2px solid black'})}}
             >
-              <Status size={'22px'} status={ScheduleStatus[3]} />
+              <Status size={'22px'} status={ScheduleStatus[3] as ScheduleStatusType} />
             </StatusButton>
           </div>
           

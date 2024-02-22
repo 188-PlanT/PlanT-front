@@ -1,7 +1,7 @@
 import AppColor from '@styles/AppColor';
 import styled from '@emotion/styled';
 import Link from 'next/link';
-import {DivHTMLAttributes, DetailedHTMLProps} from 'react';
+import {BaseHTMLAttributes, DetailedHTMLProps} from 'react';
 
 interface PlusButtonProps {
   path: string;
@@ -9,7 +9,7 @@ interface PlusButtonProps {
   color?: string;
 }
 
-export default function PlusButton({path, backgroundColor, color, ...props}: PlusButtonProps & DetailedHTMLProps<DivHTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
+export default function PlusButton({path, backgroundColor, color, ...props}: PlusButtonProps & DetailedHTMLProps<BaseHTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
 
   return (
     <Link href={path}>

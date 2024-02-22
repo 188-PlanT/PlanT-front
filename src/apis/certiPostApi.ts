@@ -1,5 +1,5 @@
 import axiosInstance from '@utils/axios';
-import { CertiPostDto } from '@_types/CertiPostDto';
+import { CertiPostDto } from '@customTypes/CertiPostDto';
 
 const prefix = '/v1/certi';
 

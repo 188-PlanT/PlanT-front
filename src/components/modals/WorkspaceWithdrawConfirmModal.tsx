@@ -2,14 +2,14 @@ import Modal, {ModalProps} from '@components/modals';
 import ShortButton from '@components/atoms/ShortButton';
 import styled from '@emotion/styled';
 import AppColor from '@styles/AppColor';
-import {useCallback} from 'react';
+import {useCallback, MouseEvent} from 'react';
 
 export default function WorkspaceWithdrawConfirmModal({
     isOpened,
     closeModal,
     backdropClose = true,
   }: ModalProps) {
-  const onClickContainer = useCallback((e) => {
+  const onClickContainer = useCallback((e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
   }, []);
   

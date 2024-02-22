@@ -8,8 +8,8 @@ import FolderIcon from '@public/image/folder_icon.png';
 
 interface WorkspaceDropDownProps {
   workspaceList: {workspaceName: string; workspaceId: number}[];
-  value: {workspaceName: string; workspaceId: number};
-  onChangeValue: () => {};
+  value: {workspaceName: string; workspaceId: number} | null;
+  onChangeValue: (value: {workspaceName: string; workspaceId: number}) => () => void;
 }
 
 export default function WorkspaceDropDown({workspaceList, value, onChangeValue}: WorkspaceDropDownProps) {
@@ -23,7 +23,7 @@ export default function WorkspaceDropDown({workspaceList, value, onChangeValue}:
         placeholder='일정을 추가할 워크스페이스를 선택해 주세요'
         disabled
         onClick={() => {setIsOpend(prev => !prev)}}
-        value={value.workspaceName ? value.workspaceName : ''}
+        value={value?.workspaceName ? value.workspaceName : ''}
         endAdornment={<Image src={DropDownIcon} width={20} height={20} alt='드롭다운 아이콘' />}
       />
       {isOpend && (

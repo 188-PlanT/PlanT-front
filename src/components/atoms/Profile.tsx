@@ -12,15 +12,7 @@ interface ProfileProps {
 export default function Profile({ profileImgUrl, width = '40px', height = '40px' }: ProfileProps) {
   return (
     <Container style={{ width, height }}>
-      <Image
-        // src={profileImgUrl || UserIcon}
-	    src={profileImgUrl}
-        layout={profileImgUrl ? 'responsive' : 'fixed'}
-        width={profileImgUrl ? undefined : '30px'}
-        height={profileImgUrl ? undefined : '30px'}
-        objectFit={profileImgUrl ? 'cover' : 'contain'}
-        alt='프로필 이미지'
-      />
+      
     </Container>
   );
 }
@@ -34,3 +26,13 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
 `;
+
+/* <Image
+  // src={profileImgUrl || UserIcon}
+  src={profileImgUrl}
+  layout={profileImgUrl ? 'responsive' : 'fixed'}
+  width={profileImgUrl ? undefined : '30px'}
+  height={profileImgUrl ? undefined : '30px'}
+  objectFit={profileImgUrl ? 'cover' : 'contain'}
+  alt='프로필 이미지'
+/> */

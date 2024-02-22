@@ -5,13 +5,13 @@ import {useMemo} from 'react';
 import 'dayjs/locale/ko';
 
 interface ScheduleCommentProps {
-  chat: {chatId: number; nickName: string; content: string; createdAt: string;}; // createdAt 변수명 변경 가능
+  chat: {chatId: number; nickName: string; content: string; createdDate: string;};
 }
 
 //TODO 편집 기능 추가
 export default function ScheduleComment({chat}: ScheduleCommentProps) {
   const formatedDate = useMemo(() => {
-    return formatDate(chat.createdAt, 'YYYY년 MM월 DD일 A hh:mm');
+    return formatDate(chat.createdDate, 'YYYY년 MM월 DD일 A hh:mm');
   }, [chat]);
   
   return (

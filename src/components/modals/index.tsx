@@ -4,19 +4,20 @@ import styled from '@emotion/styled';
 
 export interface ModalProps {
   isOpened: boolean;
-  closeModal: () => {};
-  backdropClose: boolean;
+  closeModal: () => void;
+  backdropClose?: boolean;
 }
 
 interface ModalWrapperProps {
   children: ReactNode;
-  closeModal?: () => {};
+  isOpened: boolean;
+  closeModal?: (() => void) | null;
 }
 
 export default function Modal({children, isOpened, closeModal}: ModalWrapperProps) {
   // if (typeof window === 'undefined') return <></>;
-  const [body, setBody] = useState(null);
-  const [portalRoot, setPortalRoot] = useState(null);
+  const [body, setBody] = useState<Element | null>(null);
+  const [portalRoot, setPortalRoot] = useState<Element | null>(null);
 
   useEffect(() => {
     setPortalRoot(document.querySelector('#modal-root') || null);
@@ -36,7 +37,7 @@ export default function Modal({children, isOpened, closeModal}: ModalWrapperProp
   return (
     <>
       {isOpened && createPortal(
-        <Backdrop onClick={closeModal && closeModal}>
+        <Backdrop onClick={closeModal ? closeModal : () => {}}>
           {children}
         </Backdrop>
        , portalRoot)}

@@ -56,7 +56,6 @@ const SignUp: NextPageWithLayout<SignUpProps> = ({}) => {
       const params = {
         email: values.email,
         password: values.password,
-        registerType: 1,
       };
       _signup(params);
     },

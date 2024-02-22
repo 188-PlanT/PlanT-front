@@ -2,24 +2,30 @@ import Modal, {ModalProps} from '@components/modals';
 import ShortButton from '@components/atoms/ShortButton';
 import styled from '@emotion/styled';
 import AppColor from '@styles/AppColor';
-import {useCallback} from 'react';
+import {useCallback, MouseEvent, useMemo} from 'react';
 
 export default function AuthorityChangeConfirmModal({
     isOpened,
     closeModal,
     backdropClose = true,
     onClickChange,
-  }: ModalProps & {onClickChange: () => {}}) {
-  const onClickContainer = useCallback((e) => {
+  selectedAuthority
+  }: ModalProps & {
+    onClickChange: () => void;
+    selectedAuthority: 'ADMIN' | 'USER';
+  }) {
+  const onClickContainer = useCallback((e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
   }, []);
+  
+  const selectedAuthorityToKorean = useMemo(() => selectedAuthority === 'ADMIN' ? '관리자' : '일반멤버', [selectedAuthority]);
 
   return (
     
     <Modal isOpened={isOpened} closeModal={backdropClose ? closeModal : null}>
       <Container onClick={onClickContainer}>
         <Content>
-          정말 권한을 변경하시겠어요?
+          {`정말 이 사용자의 권한을 ${selectedAuthorityToKorean}로 변경하시겠어요?`}
         </Content>
         
         <div style={{display: 'flex', justifyContent: 'space-between'}}>
