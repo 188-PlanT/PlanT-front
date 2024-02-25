@@ -13,15 +13,11 @@ import styled from '@emotion/styled';
 import {formatDate} from '@utils/Utils';
 import {ScheduleStatus, ScheduleStatusType} from '@customTypes/types';
 import qs from 'qs';
-import useModal from '@hooks/useModal';
-import WorkspaceWithdrawConfirmModal from '@components/modals/WorkspaceWithdrawConfirmModal'; //TEST 용
 
 interface TeamScheduleProps {}
 
 const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
   const router = useRouter();
-  
-  const [isOpend, openModal, closeModal] = useModal();
 
   const isAdmin = true; //TODO 테스트용
   const data = { //TODO 테스트용
@@ -200,7 +196,6 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
             </div>
           )}
         </div>
-        <WorkspaceWithdrawConfirmModal isOpened={isOpend} closeModal={closeModal} />
       </Container>
     </div>
   );
