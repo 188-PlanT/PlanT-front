@@ -54,7 +54,7 @@ const Nickname: NextPageWithLayout<NicknameProps> = ({}) => {
     (e: MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
       if (!values.nickname) return;
-      _checkNickname({ nickname: values.nickname });
+      _checkNickname({ nickName: values.nickname });
     },
     [values.nickname, _checkNickname],
   );
