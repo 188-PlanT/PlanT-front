@@ -4,7 +4,7 @@ const prefix = '/v1';
 
 export async function signup(params: { email: string; password: string; }) {
   try {
-    await axiosInstance.post(`${prefix}/signup`, params);
+    await axiosInstance.post(`${prefix}/sign-up`, params);
   } catch (error) {
     console.error(error);
     throw error;
@@ -30,12 +30,12 @@ export async function logout() {
   axiosInstance.defaults.headers.common.Authorization = undefined;
 }
 
-export async function checkNickname(params: { nickname: string }): Promise<{ message?: string } | undefined> {
+export async function checkNickname(params: { nickName: string }): Promise<{ message?: string } | undefined> {
   try {
     const {
-      data: { data },
-    } = await axiosInstance.post(`${prefix}/check/nickname`, params);
-    return data;
+      data: { available },
+    } = await axiosInstance.post(`${prefix}/users/nickname`, params);
+    return available;
   } catch (error) {
     console.error(error);
   }
@@ -44,9 +44,9 @@ export async function checkNickname(params: { nickname: string }): Promise<{ mes
 export async function checkEmail(params: { email: string }): Promise<{ message?: string } | undefined> {
   try {
     const {
-      data: { data },
-    } = await axiosInstance.post(`${prefix}/check/email`, params);
-    return data;
+      data: { available },
+    } = await axiosInstance.post(`${prefix}/users/email`, params);
+    return available;
   } catch (error) {
     console.error(error);
   }

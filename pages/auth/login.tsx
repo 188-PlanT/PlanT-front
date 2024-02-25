@@ -13,7 +13,6 @@ import { login } from '@apis/authApi';
 import { useMutation } from '@tanstack/react-query';
 import GoogleIcon from '@public/image/google_icon.png';
 import NaverIcon from '@public/image/naver_icon.png';
-import KakaoIcon from '@public/image/kakao_icon.png';
 
 interface LoginProps {}
 
@@ -33,8 +32,7 @@ const Login: NextPageWithLayout<LoginProps> = ({}) => {
   });
 
   const { mutate: _login } = useMutation(login, {
-    // TODO 기능 붙이기
-    onSuccess: () => router.push('/'),
+    onSuccess: () => router.push('/workspace/personal'),
   });
 
   return (
