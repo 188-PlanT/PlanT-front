@@ -8,22 +8,24 @@ export default function ScheduleCreateConfirmModal({
     isOpened,
     closeModal,
     backdropClose = true,
-  }: ModalProps) {
+    onClick,
+  }: ModalProps & {
+    onClick: () => void;
+  }) {
   const onClickContainer = useCallback((e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
   }, []);
 
   return (
-    
     <Modal isOpened={isOpened} closeModal={backdropClose ? closeModal : null}>
       <Container onClick={onClickContainer}>
         <Content>
-          정말 권한을 변경하시겠어요?
+          이 일정을 등록하시겠어요?
         </Content>
         
         <div style={{display: 'flex', justifyContent: 'space-between'}}>
           <ShortButton
-            onClick={() => {}}
+            onClick={onClick}
             label='네'
             buttonStyle={{
               backgroundColor: AppColor.main,

@@ -18,6 +18,10 @@ import FolderIcon from '@public/image/folder_icon.png';
 import {useState, useCallback, ChangeEvent} from 'react';
 import {ScheduleStatus, ScheduleStatusType} from '@customTypes/types';
 import {useRouter} from 'next/router';
+import useModal from '@hooks/useModal';
+import ScheduleCreateStopModal from '@components/modals/ScheduleCreateStopModal';
+import ScheduleCreateConfirmModal from '@components/modals/ScheduleCreateConfirmModal';
+import {toast} from 'react-toastify';
 
 interface AddPersonalScheduleProps {}
 
@@ -25,6 +29,9 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
   const router = useRouter();
   
   const workspaceName = '김성훈의 마지막 잎새'; //TEST 용
+  
+  const [stopModalIsOpened, stopModalOpenModal, stopModalCloseModal] = useModal();
+  const [confirmModalIsOpened, confirmModalOpenModal, confirmModalCloseModal] = useModal();
   
   const [name, setName] = useState('');
   const onChangeName = useCallback((e: ChangeEvent<HTMLInputElement>) => {setName(e.target.value)}, []);
@@ -65,12 +72,45 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
   const [selectedStatus, setSelectedStatus] = useState<ScheduleStatusType>('TODO');
   
   const onClickCancel = useCallback(() => {
+    stopModalOpenModal();
+  }, [stopModalOpenModal]);
+  const onClickCancelConfirm = useCallback(() => {
     router.back();
-  }, [router]);
+    stopModalCloseModal();
+  }, [router, stopModalCloseModal]);
   
-  const onSubmit = useCallback(() => {
-    //TODO 구현. 유효성 검사 추가
-  }, []);
+  const onClickSubmit = useCallback(() => {
+    if (!name) {
+      toast.error('일정의 이름을 입력해 주세요.');
+      return;
+    }
+    if (!selectedWorkspace) {
+      toast.error('일정을 추가할 워크스페이스를 선택해 주세요.');
+      return;
+    }
+    if (selectedMemberList.length === 0) {
+      toast.error('일정에 참여하는 멤버를 1명 이상 정해 주세요.');
+      return;
+    }
+    if (!(selectedDate.start && selectedDate.end)) {
+      toast.error('일정의 시작일, 종료일을 바르게 입력해 주세요.');
+      return;
+    }
+    if (!contentHtml || contentHtml === '<p><br></p>') {
+      toast.error('일정의 내용을 입력해 주세요.');
+      return;
+    }
+    if (!selectedStatus) {
+      toast.error('일정의 상태를 선택해 주세요.');
+      return;
+    }
+    confirmModalOpenModal();
+  }, [selectedWorkspace, name, selectedMemberList, selectedDate, contentHtml, selectedStatus, confirmModalOpenModal]);
+  const onClickSubmitconfirm = useCallback(() => {
+    // TODO API 연동
+    // selectedWorkspace, name, selectedMemberList, selectedDate, contentHtml, selectedStatus
+    confirmModalCloseModal();
+  }, [selectedWorkspace, name, selectedMemberList, selectedDate, contentHtml, selectedStatus, confirmModalCloseModal]);
   
   return (
     <Container>
@@ -180,7 +220,7 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
               }}  
             />
             <ShortButton
-              onClick={onSubmit}
+              onClick={onClickSubmit}
               label='추가하기'
               buttonStyle={{
                 backgroundColor: AppColor.main,
@@ -195,6 +235,16 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
           </div>
         </div>
       </div>
+      <ScheduleCreateStopModal
+        isOpened={stopModalIsOpened}
+        closeModal={stopModalCloseModal}
+        onClick={onClickCancelConfirm}
+      />
+      <ScheduleCreateConfirmModal
+        isOpened={confirmModalIsOpened}
+        closeModal={confirmModalCloseModal}
+        onClick={onClickSubmitconfirm}
+      />
     </Container>
   );
 };

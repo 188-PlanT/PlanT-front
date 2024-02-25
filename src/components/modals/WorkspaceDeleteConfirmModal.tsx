@@ -8,7 +8,10 @@ export default function WorkspaceDeleteConfirmModal({
     isOpened,
     closeModal,
     backdropClose = true,
-  }: ModalProps) {
+    onClick,
+  }: ModalProps & {
+    onClick: () => void;
+  }) {
   const onClickContainer = useCallback((e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
   }, []);
@@ -17,15 +20,15 @@ export default function WorkspaceDeleteConfirmModal({
     <Modal isOpened={isOpened} closeModal={backdropClose ? closeModal : null}>
       <Container onClick={onClickContainer}>
         <Content>
-          정말 권한을 변경하시겠어요?
+          정말 이 플랜팀을 삭제하시겠어요?
         </Content>
         
         <div style={{display: 'flex', justifyContent: 'space-between'}}>
           <ShortButton
-            onClick={() => {}}
+            onClick={onClick}
             label='네'
             buttonStyle={{
-              backgroundColor: AppColor.main,
+              backgroundColor: AppColor.text.error,
               width: '140px',
               height: '46px',
               fontSize: '16px',

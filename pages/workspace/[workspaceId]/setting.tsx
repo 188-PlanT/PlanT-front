@@ -12,12 +12,20 @@ import { useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
 import SearchIcon from '@public/image/search_icon.png';
 import AppColor from '@styles/AppColor';
-import {useState, useCallback, ChangeEvent} from 'react';
+import {useState, useCallback, useEffect, ChangeEvent} from 'react';
 import {transrateAuthority} from '@utils/Utils';
+import useModal from '@hooks/useModal';
+import WorkspaceDeleteConfirmModal from '@components/modals/WorkspaceDeleteConfirmModal';
+import WorkspaceWithdrawConfirmModal from '@components/modals/WorkspaceWithdrawConfirmModal';
+import KickMemberConfirmModal from '@components/modals/KickMemberConfirmModal';
 
 interface WorkspaceSettingProps {}
 
 const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
+  const [deleteModalIsOpened, deleteModalOpen, deleteModalClose] = useModal();
+  const [withdrawModalIsOpened, withdrawModalOpen, withdrawModalClose] = useModal();
+  const [kickModalIsOpened, kickModalOpen, kickModalClose] = useModal();
+
   const name = "김성훈의 마지막 잎새"; //TEST 용
   const isAdmin = true; //TEST 용
   // const profile = ''; //TEST 용
@@ -75,12 +83,6 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
     },
   });
   
-  const onClickKickUser = useCallback(
-    (userId) => () => {
-      // TODO 구현
-      console.log(userId);
-    }, []);
-  
   const onChangeSearchInput = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setSearchKeyword(e.target.value);
   }, []);
@@ -90,6 +92,36 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
       // TODO 구현
       console.log(userId);
     }, []);
+  
+  const [selectedKickedUserId, setSelectedKickedUserId] = useState<number | null>(null);
+  const onClickKickUser = useCallback(
+    (userId) => () => {
+      setSelectedKickedUserId(userId);
+      kickModalOpen();
+    }, [kickModalOpen]);
+  const onKickUser = useCallback(() => {
+    //TODO API 연동
+    console.log(selectedKickedUserId);
+    kickModalClose();
+  }, [selectedKickedUserId, kickModalClose]);
+  
+  useEffect(() => {
+    if (!kickModalIsOpened) {
+      setSelectedKickedUserId(null);
+    }
+  }, [kickModalIsOpened]);
+  
+  const onClickWithdraw = useCallback(() => {
+    //TODO API 연동
+    withdrawModalClose();
+    router.push('/workspace/personal');
+  }, [withdrawModalClose, router]);
+  
+  const onClickDelete = useCallback(() => {
+    //TODO API 연동
+    deleteModalClose();
+    router.push('/workspace/personal');
+  }, [deleteModalClose, router]);
   
   return (
     <Container style={{width: '100%'}}>
@@ -205,7 +237,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
               backgroundColor: AppColor.text.error,
             }}
             label='팀 나가기'
-            onClick={() => {}}
+            onClick={withdrawModalOpen}
           />
           <ButtonShort
             buttonStyle={{
@@ -219,10 +251,13 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
               border: `1px solid ${AppColor.text.error}`
             }}
             label='팀 삭제'
-            onClick={() => {}}
+            onClick={deleteModalOpen}
           />
         </div>
       </div>
+      <WorkspaceWithdrawConfirmModal isOpened={withdrawModalIsOpened} closeModal={withdrawModalClose} onClick={onClickWithdraw} />
+      <WorkspaceDeleteConfirmModal isOpened={deleteModalIsOpened} closeModal={deleteModalClose} onClick={onClickDelete} />
+      <KickMemberConfirmModal isOpened={kickModalIsOpened} closeModal={kickModalClose} onClick={onKickUser} />
     </Container>
   );
 };

@@ -8,17 +8,15 @@ export default function WorkspaceWithdrawConfirmModal({
     isOpened,
     closeModal,
     backdropClose = true,
-  }: ModalProps) {
+    onClick,
+  }: ModalProps & {
+    onClick: () => void;
+  }) {
   const onClickContainer = useCallback((e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
   }, []);
   
-  const onClickWithdraw = useCallback(() => {
-    
-  }, []); 
-  
   return (
-    
     <Modal isOpened={isOpened} closeModal={backdropClose ? closeModal : null}>
       <Container onClick={onClickContainer}>
         <Content>
@@ -27,7 +25,7 @@ export default function WorkspaceWithdrawConfirmModal({
         
         <div style={{display: 'flex', justifyContent: 'space-between'}}>
           <ShortButton
-            onClick={onClickWithdraw}
+            onClick={onClick}
             label='네'
             buttonStyle={{
               backgroundColor: AppColor.text.error,

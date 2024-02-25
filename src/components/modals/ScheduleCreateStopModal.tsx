@@ -8,7 +8,10 @@ export default function ScheduleCreateStopModal({
     isOpened,
     closeModal,
     backdropClose = true,
-  }: ModalProps) {
+    onClick,
+  }: ModalProps & {
+    onClick: () => void;
+  }) {
   const onClickContainer = useCallback((e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
   }, []);
@@ -17,12 +20,12 @@ export default function ScheduleCreateStopModal({
     <Modal isOpened={isOpened} closeModal={backdropClose ? closeModal : null}>
       <Container onClick={onClickContainer}>
         <Content>
-          정말 권한을 변경하시겠어요?
+          일정 만들기를 그만하시겠어요?
         </Content>
         
         <div style={{display: 'flex', justifyContent: 'space-between'}}>
           <ShortButton
-            onClick={() => {}}
+            onClick={onClick}
             label='네'
             buttonStyle={{
               backgroundColor: AppColor.main,
