@@ -8,7 +8,7 @@ export function middleware(request: NextRequest) {
   const nextPath = nextUrl.pathname;
 
   console.log('middleware', nextPath, nextUrl);
-  return NextRequest.redirect(new URL('/auth/login', request.url));
+  return NextResponse.redirect(new URL('/auth/login', request.url));
   
   // if (blockRouteList.some(route => nextPath.includes(route))) {
   //   const accessToken = localStorage.getItem('accessToken');
@@ -17,7 +17,7 @@ export function middleware(request: NextRequest) {
     
   //   if (!accessToken) {
   //     nextPath.pathname = '/auth/login';
-  //     return NextRequest.redirect(nextUrl);
+  //     return NextResponse.redirect(nextUrl);
   //   }
   // }
 }
