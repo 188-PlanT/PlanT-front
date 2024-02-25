@@ -168,7 +168,7 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
           {isAdmin && (
             <div style={{display: 'flex', columnGap: '14px', justifyContent: 'flex-end'}}>
               <ShortButton
-                onClick={openModal}
+                onClick={() => {}}
                 label='삭제'
                 buttonStyle={{
                   backgroundColor: AppColor.text.error,
