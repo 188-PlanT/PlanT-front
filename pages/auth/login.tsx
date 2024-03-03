@@ -62,6 +62,7 @@ const Login: NextPageWithLayout<LoginProps> = ({}) => {
         />
         <ButtonShort
           label='로그인하기'
+          type='submit'
           buttonStyle={{
             backgroundColor: AppColor.main,
             width: '120px',

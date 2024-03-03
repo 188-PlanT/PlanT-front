@@ -7,9 +7,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import useMe from '@hooks/useMe';
 import Logo from '@components/common/Logo';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { logout } from '@apis/authApi';
-import { USER_QUERY_KEY } from '@apis/userApi';
+import { USER_QUERY_KEY, getMyWorkspaceList } from '@apis/userApi';
 
 interface CommonLayoutProps {
   title?: string;
@@ -23,7 +23,12 @@ export default function CommonLayout({ children, title = '', description }: Comm
   const router = useRouter();
 
   const queryClient = useQueryClient();
-
+  
+  const { data: {workspaces} } = useQuery([USER_QUERY_KEY.getMyWorkspaceList], getMyWorkspaceList, {
+    retry: false,
+    initialData: [],
+  });
+  
   const { mutate: _logout } = useMutation(logout, {
     onSuccess: () => {
       queryClient.invalidateQueries([USER_QUERY_KEY.GET_MY_INFO]);
@@ -44,7 +49,7 @@ export default function CommonLayout({ children, title = '', description }: Comm
         {description && <meta name='description' content={description} />}
       </Head>
       <div style={{display: 'flex'}}>
-        <SideBar />
+        <SideBar nickname={me?.nickName || ''} workspaces={workspaces || []} />
         <Main>{children}</Main>
       </div>
     </>

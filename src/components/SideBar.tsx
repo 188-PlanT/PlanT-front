@@ -5,37 +5,38 @@ import Logo from '@public/image/logo.png';
 import WorkspaceProfile from '@components/WorkspaceProfile';
 import PlusButton from '@components/PlusButton';
 import SettingButton from '@components/SettingButton';
+import {WorkspaceSimpleDto} from '@customType/WorkspaceSimpleDto';
 
 import TestImage from '@public/image/kakao_icon.png';
 
 interface SideBarProps {
+  nickName: string;
+  workspaces: WorkspaceSimpleDto[];
 }
 
-export default function SideBar({}: SideBarProps) {
-  const nickname = "민혁"; //TEST 용
-  
-  //TODO 워크스페이스 리스트 요청
-  
-  
+export default function SideBar({
+    nickName,
+    workspaces,
+  }: SideBarProps) {
   return (
     <Container>
       <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
         <Image src={Logo} alt='플랜티 로고' width={52} height={13} />
 
         <div style={{marginTop: '26px'}}>
-          <WorkspaceProfile isMine workspaceName={`${nickname}의 워크스페이스`} />
+          <WorkspaceProfile isMine workspaceName={`${nickName}의 워크스페이스`} />
         </div>
 
         <Line/>
 
         <WorkspaceWrapper>
-          <WorkspaceProfile workspaceName={`${nickname}의 워크스페이스1`} workspaceId={1} />
-          <WorkspaceProfile workspaceName={`${nickname}의 워크스페이스2`} workspaceId={2} />
-          <WorkspaceProfile workspaceName={`${nickname}의 워크스페이스3`} workspaceId={3} />
-          <WorkspaceProfile workspaceName={`${nickname}의 워크스페이스4`} workspaceId={4} />
-          <WorkspaceProfile workspaceName={`${nickname}의 워크스페이스5`} workspaceId={5} />
-          <WorkspaceProfile workspaceName={`${nickname}의 워크스페이스5`} workspaceId={6} />
-          
+          {workspaces.map(w => 
+                          <WorkspaceProfile
+                            key={w.workspaceId}
+                            workspaceName={`${w.workspaceName}의 워크스페이스1`}
+                            workspaceId={w.workspaceId}
+                            imageUrl={w.profile}
+                          />)}          
           <PlusButton path='/workspace/create' />
         </WorkspaceWrapper>
       </div>

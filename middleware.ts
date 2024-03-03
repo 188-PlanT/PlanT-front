@@ -7,21 +7,10 @@ export function middleware(request: NextRequest) {
   const nextUrl = request.nextUrl.clone();
   const nextPath = nextUrl.pathname;
 
-  console.log('middleware', nextPath, nextUrl);
-  return NextResponse.redirect(new URL('/auth/login', request.url));
-  
-  // if (blockRouteList.some(route => nextPath.includes(route))) {
-  //   const accessToken = localStorage.getItem('accessToken');
-    
-  //   console.log('middleware', accessToken, nextPath, nextUrl);
-    
-  //   if (!accessToken) {
-  //     nextPath.pathname = '/auth/login';
-  //     return NextResponse.redirect(nextUrl);
-  //   }
-  // }
+  if (blockRouteList.some((route) => nextPath.includes(route))) {
+    const accessToken = request.cookies;
+    if (!accessToken) {
+      // return NextResponse.redirect(new URL('/auth/login', request.url));
+    }
+  }
 }
-
-// export const config = {
-//   matcher: ['/workspace/:path*', '/mypage'],
-// };

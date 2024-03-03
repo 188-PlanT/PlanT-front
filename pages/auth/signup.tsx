@@ -48,7 +48,6 @@ const SignUp: NextPageWithLayout<SignUpProps> = ({}) => {
       return error;
     },
     onSubmit: values => {
-      console.log('제출');
       if (!checked.email) {
         toast.error('이메일 중복 체크를 진행해 주세요');
         return;
@@ -57,6 +56,7 @@ const SignUp: NextPageWithLayout<SignUpProps> = ({}) => {
         email: values.email,
         password: values.password,
       };
+      //TODO 인증 페이지로 데이터 넘기고 거기서 회원가입 요청
       _signup(params);
     },
   });
@@ -70,11 +70,11 @@ const SignUp: NextPageWithLayout<SignUpProps> = ({}) => {
 
   const { mutate: _checkEmail } = useMutation(checkEmail, {
     onSuccess: res => {
-      if (!res) return;
-      if (res.message) {
-        setFieldError('email', res.message);
-      } else {
+      if (res) {
+        toast.success('사용 가능한 이메일입니다.')
         setChecked(prev => ({ ...prev, email: true }));
+      } else {
+        setFieldError('email', '이미 사용 중인 이메일입니다.');
       }
     },
   });
@@ -116,7 +116,7 @@ const SignUp: NextPageWithLayout<SignUpProps> = ({}) => {
               borderRadius: '8px',
               fontSize: '14px',
               fontWeight: 'bold',
-              backgroundColor: AppColor.main,
+              ...(!checked.email && {backgroundColor: AppColor.main})
             }}
             label='중복 확인'
             onClick={onCheckEmail}

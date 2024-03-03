@@ -100,4 +100,7 @@ const CardContainer = styled.div`
   height: calc(100vh - 280px);
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar {
+    display: none;
+  };
 `;

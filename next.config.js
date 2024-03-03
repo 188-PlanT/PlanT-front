@@ -4,7 +4,7 @@ const API_KEY = '1111';
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['t1.daumcdn.net', 'proxy.goorm.io'],
+    domains: ['proxy.goorm.io', 'plant-s3.s3.ap-northeast-2.amazonaws.com'],
   },
   // async redirects() {
   //   return [

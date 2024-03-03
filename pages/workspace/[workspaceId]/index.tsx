@@ -158,6 +158,9 @@ const SelectedDateListContainer = styled.div`
   max-height: calc(100vh - 90px);
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar {
+    display: none;
+  };
 `;
 
 const SelectedDateText = styled.div`

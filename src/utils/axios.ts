@@ -16,7 +16,6 @@ const axiosInstance = axios.create({
 
 if (process.env.NEXT_PUBLIC_BASE_URL) {
   axiosInstance.defaults.baseURL = process.env.NEXT_PUBLIC_BASE_URL;
-  console.log('test', process.env.NEXT_PUBLIC_BASE_URL);
 }
 
 axiosInstance.interceptors.response.use(

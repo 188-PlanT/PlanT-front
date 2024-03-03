@@ -1,10 +1,7 @@
-import { PostSimpleDto } from './PostDto';
-
 export interface UserDto {
   userId: number;
-  nickname?: string;
-  walletAddress?: string;
-  createdAt: string;
-  posts: PostSimpleDto[];
-  comments: PostSimpleDto[];
+  nickName: string | null;
+  email : string;
+  profile : string;
+  state: 'PENDING' | 'USER' | 'ADMIN';
 }

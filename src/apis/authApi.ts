@@ -1,4 +1,5 @@
 import axiosInstance from '@utils/axios';
+import { UserDto } from '@customTypes/UserDto';
 
 const prefix = '/v1';
 
@@ -30,7 +31,7 @@ export async function logout() {
   axiosInstance.defaults.headers.common.Authorization = undefined;
 }
 
-export async function checkNickname(params: { nickName: string }): Promise<{ message?: string } | undefined> {
+export async function checkNickname(params: { nickName: string }): Promise<boolean | undefined> {
   try {
     const {
       data: { available },
@@ -41,7 +42,7 @@ export async function checkNickname(params: { nickName: string }): Promise<{ mes
   }
 }
 
-export async function checkEmail(params: { email: string }): Promise<{ message?: string } | undefined> {
+export async function checkEmail(params: { email: string }): Promise<boolean | undefined> {
   try {
     const {
       data: { available },
@@ -52,11 +53,11 @@ export async function checkEmail(params: { email: string }): Promise<{ message?:
   }
 }
 
-export async function setNickname(params: { nickname: string }): Promise<{ message?: string } | undefined> {
+export async function setNickname(params: { nickname: string }): Promise<UserDto | undefined> {
   try {
     const {
-      data: { data },
-    } = await axiosInstance.post(`${prefix}/check/nickname`, params);
+      data,
+    } = await axiosInstance.put(`${prefix}/users/nickname`, params);
     return data;
   } catch (error) {
     console.error(error);
