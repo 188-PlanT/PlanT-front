@@ -8,60 +8,70 @@ import { NextPageWithLayout } from 'pages/_app';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useRouter } from 'next/router';
-import { useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
 import SearchIcon from '@public/image/search_icon.png';
 import AppColor from '@styles/AppColor';
-import {useState, useCallback, ChangeEvent} from 'react';
-import {transrateAuthority} from '@utils/Utils';
+import { useState, useEffect, useMemo, useCallback, ChangeEvent } from 'react';
+import { transrateAuthority } from '@utils/Utils';
+import { USER_QUERY_KEY, searchUser } from '@apis/userApi';
+import { uploadImage } from '@apis/fileApi';
+import { createWorkspace } from '@apis/workspaceApi';
+import { useQuery, useMutation, QueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 
 interface CreateWorkspaceProps {}
 
 const CreateWorkspace: NextPageWithLayout<CreateWorkspaceProps> = ({}) => {
-  const name = "김성훈의 마지막 잎새"; //TEST 용
-  const isAdmin = true; //TEST 용
-  // const profile = ''; //TEST 용
-  const profile = "https://proxy.goorm.io/service/659153b0a304480d411a9131_d4drKhidbvkV1Nc3HZz.run.goorm.io/9080/file/load/naver_icon.png?path=d29ya3NwYWNlJTJGMTg4X3Byb2plY3RfZnJvbnQlMkZwdWJsaWMlMkZpbWFnZSUyRm5hdmVyX2ljb24ucG5n&docker_id=d4drKhidbvkV1Nc3HZz&secure_session_id=FwAk5nbeqzeCsQeB1gYNcmHCbmXTAtq4";
-  const searchResults = [
-    {
-			userId : 1,
-			nickName : "test11",
-			email : "test11@gmail.com",
-		},
-		{
-			userId : 2,
-			nickName : "test22",
-			email : "test22@gmail.com",
-		},
-    {
-			userId : 3,
-			nickName : "test22",
-			email : "test22@gmail.com",
-		},
-  ];
-  
   const router = useRouter();
 
   const [searchKeyword, setSearchKeyword] = useState('');
+  const {data: {users: searchResults}, refetch} = useQuery(
+    [USER_QUERY_KEY.SEARCH_USER],
+    () => searchUser({keyword: searchKeyword}),
+    {
+      enabled: !!searchKeyword,
+      initialData: {users: []},
+    });
+
+  useEffect(() => {
+    if (!!searchKeyword) {
+      refetch();
+    }
+  }, [searchKeyword, refetch]);
   
   const [candidateUserList, setCandidateUserList] = useState<{userId: number; nickName: string; email: string}[]>([]);
 
-  const { values, errors, touched, handleSubmit, handleChange, handleBlur, setFieldError } = useFormik({
+  const { values, errors, touched, handleChange, handleBlur, setFieldError } = useFormik({
     initialValues: {
       name: '',
     },
     validationSchema: Yup.object({
-      name: Yup.string().max(30, '팀 이름을 입력해 주세요.').required('팀 이름을 입력해 주세요.'),
+      name: Yup.string().max(30, '30자 이내 팀 이름을 입력해 주세요.').required('30자 이내 팀 이름을 입력해 주세요.'),
     }),
-    onSubmit: values => {
-    },
   });
   
-  const onClickKickUser = useCallback(
-    (userId) => () => {
-      // TODO 구현
-      console.log(userId);
-    }, []);
+  const [profile, setProfile] = useState('');
+  const onChangeImage = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
+    const { files, name } = e.target;
+    console.log(files, name);
+    // TODO 이미지 업로드 연동 진행 중
+    if (files && files.length > 0) {
+      const image = files[0];
+      const formData = new FormData();
+      formData.enctype='multipart/form-data';
+      formData.append('image', image);
+      console.log(formData);
+      await uploadImage(formData)
+          .then((res: string) => {
+            console.log(res);
+            setProfile(res);
+            return;
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+    }
+  }, []);
   
   const onChangeSearchInput = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setSearchKeyword(e.target.value);
@@ -80,9 +90,31 @@ const CreateWorkspace: NextPageWithLayout<CreateWorkspaceProps> = ({}) => {
       setCandidateUserList(updatedList);
     }, [candidateUserList]);
   
+  const queryClient = useMemo(() => new QueryClient(), []);
+  const { mutate: _createWorkspace } = useMutation(createWorkspace, {
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({querykey: [USER_QUERY_KEY.GET_MY_WORKSPACE_LIST]});
+      console.log(res);
+      router.push(`/workspace/${res.workspaceId}`);
+    },
+  });
+  
+  const onCreateWorkspace = useCallback(async () => {
+    if (!values.name) {
+      toast.error('30자 이내 팀 이름을 입력해 주세요.');
+      return;
+    }
+    if (candidateUserList.length === 0) {
+      toast.error('팀에 참여할 멤버를 한 명 이상 선택해 주세요.');
+      return;
+    }
+    const memberUIdList = candidateUserList.map(user => user.userId);
+    await _createWorkspace({users: memberUIdList, name: values.name, ...(profile && {profile})});
+  }, [values, candidateUserList, profile]);
+  
   return (
     <Container>
-      <PageName pageName={name} additionalName='플랜팀 설정' />
+      <PageName pageName='새로운 플랜팀 만들기' />
       
       <div style={{margin: '50px 18%', display: 'flex', flexDirection: 'column', rowGap: '28px'}}>
         <div style={{display: 'flex', margin: '20px 0', justifyContent: 'space-between'}}>
@@ -110,27 +142,27 @@ const CreateWorkspace: NextPageWithLayout<CreateWorkspaceProps> = ({}) => {
               backgroundColor: AppColor.main,
             }}
             label='생성하기'
-            onClick={() => {}}
+            onClick={onCreateWorkspace}
           />
         </div>
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '120px', rowGap: '18px'}}>
           <Circle>
             {profile ? (
               <Image width={112} height={112} src={profile} alt='프로필 이미지' />
-            ) : name[0]}
+            ) : values.name[0]}
           </Circle>
-          <ButtonShort
-            buttonStyle={{
-              width: '96px',
-              height: '36px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              backgroundColor: AppColor.main,
-            }}
-            label='사진 변경'
-            onClick={() => {}}
-          />
+          <ImageUploadButton>
+            <label htmlFor='워크스페이스 프로필 이미지 업로드'>사진 변경</label>
+            <input
+              style={{ display: 'none' }}
+              label='사진 변경'
+              id='워크스페이스 프로필 이미지 업로드'
+              name='워크스페이스 프로필 이미지 업로드'
+              onChange={onChangeImage}
+              type='file'
+              accept='image/png, image/jpg, image/jpeg'
+            />
+          </ImageUploadButton>
         </div>
         
         <div>
@@ -231,14 +263,19 @@ const Circle = styled.div`
   font-weight: bold;
 `;
 
-const KickButton = styled.button`
-  border: 0px;
-  background-color: transparent;
-  color: ${AppColor.text.error};
+const ImageUploadButton = styled.div`
+  width: 96px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: ${AppColor.main};
   font-weight: bold;
-  text-decoration: underline;
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: bold;
   padding: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${AppColor.etc.white};
 `;
 
 

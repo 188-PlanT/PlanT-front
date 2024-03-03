@@ -1,6 +1,8 @@
 import styled from '@emotion/styled';
 import AppColor from '@styles/AppColor';
 import Link from 'next/link';
+import dayjs from 'dayjs';
+import {useMemo} from 'react';
 
 interface PersonalToDoCardProps {
   workspaceId: number;
@@ -17,18 +19,21 @@ export default function PersonalToDoCard({
   scheduleName,
   endDate,
 }: PersonalToDoCardProps) {
+  const formatedEndDate = useMemo(() => dayjs(endDate).format('YYYY/MM/DD').toString(), [endDate]);
+  
   return (
     <Link href={`/workspace/${workspaceId}/${scheduleId}`}>
       <Container>
         <WorkspaceName>{workspaceName}</WorkspaceName>
         <ScheduleName>{scheduleName}</ScheduleName>
-        <EndDate>{endDate} 까지</EndDate>
+        <EndDate>{formatedEndDate} 까지</EndDate>
       </Container>
     </Link>
   );
 };
 
 const Container = styled.div`
+  min-width: 24%;
   width: 100%;
   height: 180px;
   padding: 20px;

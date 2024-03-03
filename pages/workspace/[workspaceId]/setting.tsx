@@ -8,16 +8,20 @@ import { NextPageWithLayout } from 'pages/_app';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useRouter } from 'next/router';
-import { useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
 import SearchIcon from '@public/image/search_icon.png';
 import AppColor from '@styles/AppColor';
-import {useState, useCallback, useEffect, ChangeEvent} from 'react';
+import {useState, useCallback, useMemo, useEffect, ChangeEvent} from 'react';
 import {transrateAuthority} from '@utils/Utils';
 import useModal from '@hooks/useModal';
 import WorkspaceDeleteConfirmModal from '@components/modals/WorkspaceDeleteConfirmModal';
 import WorkspaceWithdrawConfirmModal from '@components/modals/WorkspaceWithdrawConfirmModal';
 import KickMemberConfirmModal from '@components/modals/KickMemberConfirmModal';
+import { USER_QUERY_KEY, searchUser } from '@apis/userApi';
+import { uploadImage } from '@apis/fileApi';
+import { WORKSPACE_QUERY_KEY, changeWorkspace, getWorkspaceUserByWId } from '@apis/workspaceApi';
+import { useQuery, useMutation, QueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 
 interface WorkspaceSettingProps {}
 
@@ -25,7 +29,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
   const [deleteModalIsOpened, deleteModalOpen, deleteModalClose] = useModal();
   const [withdrawModalIsOpened, withdrawModalOpen, withdrawModalClose] = useModal();
   const [kickModalIsOpened, kickModalOpen, kickModalClose] = useModal();
-
+  
   const name = "김성훈의 마지막 잎새"; //TEST 용
   const isAdmin = true; //TEST 용
   // const profile = ''; //TEST 용
@@ -50,37 +54,44 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
 			authority : "PENDING",
 		},
 	];
-  const searchResults = [
-    {
-			userId : 1,
-			nickName : "test11",
-			email : "test11@gmail.com",
-		},
-		{
-			userId : 2,
-			nickName : "test22",
-			email : "test22@gmail.com",
-		},
-    {
-			userId : 3,
-			nickName : "test22",
-			email : "test22@gmail.com",
-		},
-  ];
   
   const router = useRouter();
 
+  const workspaceId = useMemo(() => router.query.workspaceId, [router]);
+  
+  const {data: workspaceData} = useQuery(
+    [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID],
+    () => getWorkspaceUserByWId({workspaceId}),
+    {
+      enabled: !!workspaceId,
+      onError: () => router.push(`/workspace/${workspaceId}`),
+      initialData: {},
+    }
+  );
+  console.log(workspaceData);
+  
   const [searchKeyword, setSearchKeyword] = useState('');
+  const {data: {users: searchResults}, refetch} = useQuery(
+    [USER_QUERY_KEY.SEARCH_USER],
+    () => searchUser({keyword: searchKeyword}),
+    {
+      enabled: !!searchKeyword,
+      initialData: {users: []},
+    });
 
-  const { values, errors, touched, handleSubmit, handleChange, handleBlur, setFieldError } = useFormik({
+  useEffect(() => {
+    if (!!searchKeyword) {
+      refetch();
+    }
+  }, [searchKeyword, refetch]);
+  
+  const { values, errors, touched, handleChange, handleBlur, setFieldError } = useFormik({
     initialValues: {
-      name,
+      name: workspaceData.workspaceName,
     },
     validationSchema: Yup.object({
-      name: Yup.string().max(30, '팀 이름을 입력해 주세요.').required('팀 이름을 입력해 주세요.'),
+      name: Yup.string().max(30, '30자 이내 팀 이름을 입력해 주세요.').required('30자 이내 팀 이름을 입력해 주세요.'),
     }),
-    onSubmit: values => {
-    },
   });
   
   const onChangeSearchInput = useCallback((e: ChangeEvent<HTMLInputElement>) => {
@@ -88,9 +99,10 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
   }, []);
   
   const onClickAddUser = useCallback(
-    (userId: number) => () => {
-      // TODO 구현
-      console.log(userId);
+    (user) => () => {
+      setSearchKeyword('');
+      // if (candidateUserList.filter(u => u.userId === user.userId).length !== 0) return;
+      // setCandidateUserList(prev => [...prev, user]);
     }, []);
   
   const [selectedKickedUserId, setSelectedKickedUserId] = useState<number | null>(null);
@@ -125,7 +137,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
   
   return (
     <Container style={{width: '100%'}}>
-      <PageName pageName={name} additionalName='플랜팀 설정' />
+      <PageName pageName={workspaceData.workspaceName} additionalName='플랜팀 설정' />
       <div style={{margin: '50px 18%', display: 'flex', flexDirection: 'column', rowGap: '28px'}}>        
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '120px', rowGap: '18px'}}>
           <Circle>
@@ -177,11 +189,11 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
             />
             {searchKeyword ? (searchResults.length > 0 ? (
               <DropDownList>
-                {searchResults.map(({userId, nickName, email}) => (
-                  <Item key={userId}>
-                    <div>{nickName}</div>
-                    <div style={{flex: 1}}>{email}</div>
-                    <AddUserButton onClick={onClickAddUser(userId)}>+</AddUserButton>
+                {searchResults.map((user) => (
+                  <Item key={user.userId}>
+                    <div>{user.nickName}</div>
+                    <div style={{flex: 1}}>{user.email}</div>
+                    <AddUserButton onClick={onClickAddUser(user)}>+</AddUserButton>
                   </Item>
                 ))}
               </DropDownList>

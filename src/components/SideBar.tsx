@@ -11,11 +11,13 @@ import TestImage from '@public/image/kakao_icon.png';
 
 interface SideBarProps {
   nickName: string;
+  profile: string;
   workspaces: WorkspaceSimpleDto[];
 }
 
 export default function SideBar({
     nickName,
+    profile,
     workspaces,
   }: SideBarProps) {
   return (
@@ -24,22 +26,22 @@ export default function SideBar({
         <Image src={Logo} alt='플랜티 로고' width={52} height={13} />
 
         <div style={{marginTop: '26px'}}>
-          <WorkspaceProfile isMine workspaceName={`${nickName}의 워크스페이스`} />
+          <WorkspaceProfile isMine workspaceName={`${nickName}의 워크스페이스`} imageUrl={profile} />
         </div>
 
         <Line/>
 
-        <WorkspaceWrapper>
-          {workspaces.map(w => 
-                          <WorkspaceProfile
-                            key={w.workspaceId}
-                            workspaceName={`${w.workspaceName}의 워크스페이스1`}
-                            workspaceId={w.workspaceId}
-                            imageUrl={w.profile}
-                          />)}          
-          <PlusButton path='/workspace/create' />
-        </WorkspaceWrapper>
       </div>
+      <WorkspaceWrapper>
+        {workspaces.map(w => 
+                        <WorkspaceProfile
+                          key={w.workspaceId}
+                          workspaceName={`${w.workspaceName}의 워크스페이스1`}
+                          workspaceId={w.workspaceId}
+                          imageUrl={w.profile}
+                        />)}          
+        <PlusButton path='/workspace/create' />
+      </WorkspaceWrapper>
       
       <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
         <Line/>
@@ -70,6 +72,13 @@ const Line = styled.div`
 
 const WorkspaceWrapper = styled.div`
   display: flex;
+  flex: 1;
   flex-direction: column;
   row-gap: 24px;
+  overflow-y: scroll;
+   -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar {
+    display: none;
+  };
 `

@@ -29,7 +29,7 @@ const Container = styled.div`
   justify-content: center;
   background-color: ${AppColor.background.gray};
   color : ${AppColor.text.gray};
-  padding: 5px 10px;
+  padding: 10px;
   font-size: 28px;
   font-weight: bold;
   line-height: 0.8;

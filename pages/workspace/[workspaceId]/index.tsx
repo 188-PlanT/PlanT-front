@@ -4,6 +4,7 @@ import PageName from '@components/PageName';
 import ToDoCard from '@components/ToDoCard';
 import PlusButton from '@components/PlusButton';
 import DateCarousel from '@components/DateCarousel';
+import SettingButton from '@components/SettingButton';
 import Day from '@components/Day';
 import { NextPageWithLayout } from 'pages/_app';
 import AppColor from '@styles/AppColor';
@@ -64,9 +65,10 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
             wrapperStyle={{width: '100%'}}
             placeholder="일정 검색하기"
           />
-          <div style={{display: 'flex', justifyContent: 'center', position: 'relative', width: '100%'}}>
+          <div style={{display: 'flex', justifyContent: 'space-between', position: 'relative', width: '100%'}}>
+            <SettingButton href={`/workspace/${workspaceId}/setting`} />
             <DateCarousel selectedYear={selectedYear} selectedMonth={selectedMonth} onClickPrevMonth={onClickPrevMonth} onClickNextMonth={onClickNextMonth} />
-            <PlusButton style={{position: 'absolute', top: '10px', right: '00px'}} path={`/workspace/${workspaceId}/add`} color={AppColor.etc.white} backgroundColor={AppColor.main} />
+            <PlusButton path={`/workspace/${workspaceId}/add`} color={AppColor.etc.white} backgroundColor={AppColor.main} />
           </div>
           <Calendar>
             <Weekly>

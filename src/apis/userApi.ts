@@ -9,6 +9,7 @@ export const USER_QUERY_KEY = {
   GET_MY_INFO: 'getMyInfo',
   GET_MY_WORKSPACE_LIST: 'getMyWorkspaceList',
   GET_MY_SCHEDULE_LIST: 'getMyScheduleList',
+  SEARCH_USER:'searchUser',
 };
 
 export async function getMyInfo(): Promise<UserDto> {
@@ -44,7 +45,7 @@ export async function getMyWorkspaceList(): Promise<{userId: number; workspaces:
   }
 }
 
-export async function getMyScheduleList({month}: {month: string}): Promise<{userId: number; schedules: {TODO: ScheduleSimpleDto[], INPROGRESS: ScheduleSimpleDto[], DONE: ScheduleSimpleDto[]}} | undefined> {
+export async function getMyScheduleList({month}: {month: string}): Promise<{userId: number; schedules: {toDo: ScheduleSimpleDto[], InProgress: ScheduleSimpleDto[], done: ScheduleSimpleDto[]}} | undefined> {
   try {
     const {
       data,
@@ -59,7 +60,7 @@ export async function searchUser({keyword}: {keyword: string}): Promise<{users: 
   try {
     const {
       data,
-    } = await axiosInstance.get(`${prefix}/user/search?keyword=${keyword}`);
+    } = await axiosInstance.get(`${prefix}/search?keyword=${keyword}`);
     return data;
   } catch (error) {
     throw error;

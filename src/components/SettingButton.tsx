@@ -8,9 +8,10 @@ import FocusedSettingIcon from '@public/image/setting_focused.png';
 import SettingIcon from '@public/image/setting_no_focused.png';
 
 interface SettingButtonProps {
+  href?: string;
 }
 
-export default function SettingButton({}: SettingButtonProps) {
+export default function SettingButton({href = '/mypage'}: SettingButtonProps) {
   const router = useRouter();
   
   const [isFocused, setIsFocused] = useState(false);
@@ -24,7 +25,7 @@ export default function SettingButton({}: SettingButtonProps) {
   }, [router.pathname]);
 
   return (
-    <Link href='/mypage'>
+    <Link href={href}>
       <Container style={{...(isFocused && {borderRadius: '10px', backgroundColor: AppColor.main})}}>
         <Image 
           src={isFocused ? FocusedSettingIcon : SettingIcon}

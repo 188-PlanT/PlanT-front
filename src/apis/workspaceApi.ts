@@ -11,9 +11,7 @@ export const WORKSPACE_QUERY_KEY = {
 
 export async function createWorkspace(params: {users: number[]; name: string; profile?: string}) {
   try {
-    const {
-      data,
-    } = await axiosInstance.post(`${prefix}`, params);
+    const {data} = await axiosInstance.post(`${prefix}`, params);
     return data;
   } catch (error) {
     throw error;
@@ -22,9 +20,7 @@ export async function createWorkspace(params: {users: number[]; name: string; pr
 
 export async function changeWorkspace({workspaceId, name, profile}: {workspaceId: number; name?: string; profile?: string}) {
   try {
-    const {
-      data,
-    } = await axiosInstance.put(`${prefix}/${workspaceId}`, {...(name && {name}), ...(profile && {profile})});
+    const {data} = await axiosInstance.put(`${prefix}/${workspaceId}`, {...(name && {name}), ...(profile && {profile})});
     return data;
   } catch (error) {
     throw error;

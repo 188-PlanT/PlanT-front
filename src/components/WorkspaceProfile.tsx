@@ -38,6 +38,7 @@ export default function WorkspaceProfile({workspaceId, workspaceName, imageUrl, 
             alt={`${workspaceName}의 워크스페이스 이미지`}
             width='50px'
             height='50px'
+            objectFit='cover'
             style={{borderRadius: '100%'}}
           />
         ) : (
