@@ -7,6 +7,8 @@ const prefix = '/v1/workspaces';
 
 export const WORKSPACE_QUERY_KEY = {
   GET_WORKSPACE_USERS_BY_WID: 'getWorkspaceUserByWId',
+  GET_WORKSPACE_CALENDAR_BY_MONTH: 'getWorkspaceCalendarByMonth',
+  GET_WORKSPACE_SCHEDULES_BY_DATE: 'getWorkspaceSchedulesByDate',
 };
 
 export async function createWorkspace(params: {users: number[]; name: string; profile?: string}) {
@@ -103,7 +105,29 @@ export async function deleteWorkspaceUser(
   try {
     const {
       data,
-    } = await axiosInstance.delete(`${prefix}/${workspaceId}/users`, {userId});
+    } = await axiosInstance.delete(`${prefix}/${workspaceId}/users/${userId}`);
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getWorkspaceCalendarByMonth({workspaceId, month}: {workspaceId: number; month: string}) {
+  try {
+    const {
+      data,
+    } = await axiosInstance.get(`${prefix}/${workspaceId}/calendar?${month}`);
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getWorkspaceSchedulesByDate({workspaceId, date}: {workspaceId: number; month: string}) {
+  try {
+    const {
+      data,
+    } = await axiosInstance.get(`${prefix}/${workspaceId}/schedules?${date}`);
     return data;
   } catch (error) {
     throw error;

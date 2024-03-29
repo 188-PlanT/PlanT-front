@@ -72,7 +72,7 @@ export default function AuthorityDropDown({authority, userId}: AuthorityDropDown
 
 const DropDownList = styled.ul`
   list-style: none;
-  padding: 0 20px 0 0;
+  padding: 0 0 0 10px;
   position: absolute;
   width: 100%;
   background-color: ${AppColor.background.lightwhite};
@@ -84,6 +84,7 @@ const DropDownList = styled.ul`
 `;
 
 const Item = styled.li`
+  text-align: left;
   padding: 10px 0px;
   cursor: pointer;
 `;

@@ -19,9 +19,11 @@ import WorkspaceWithdrawConfirmModal from '@components/modals/WorkspaceWithdrawC
 import KickMemberConfirmModal from '@components/modals/KickMemberConfirmModal';
 import { USER_QUERY_KEY, searchUser } from '@apis/userApi';
 import { uploadImage } from '@apis/fileApi';
-import { WORKSPACE_QUERY_KEY, changeWorkspace, getWorkspaceUserByWId } from '@apis/workspaceApi';
+import { WORKSPACE_QUERY_KEY, changeWorkspace, getWorkspaceUserByWId, addWorkspaceUser, deleteWorkspaceUser, deleteWorkspace } from '@apis/workspaceApi';
 import { useQuery, useMutation, QueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
+import { useAppSelector } from '@store/configStore';
+import {selectUserId} from '@store/slices/user';
 
 interface WorkspaceSettingProps {}
 
@@ -30,54 +32,45 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
   const [withdrawModalIsOpened, withdrawModalOpen, withdrawModalClose] = useModal();
   const [kickModalIsOpened, kickModalOpen, kickModalClose] = useModal();
   
-  const name = "김성훈의 마지막 잎새"; //TEST 용
-  const isAdmin = true; //TEST 용
-  // const profile = ''; //TEST 용
-  const profile = "https://proxy.goorm.io/service/659153b0a304480d411a9131_d4drKhidbvkV1Nc3HZz.run.goorm.io/9080/file/load/naver_icon.png?path=d29ya3NwYWNlJTJGMTg4X3Byb2plY3RfZnJvbnQlMkZwdWJsaWMlMkZpbWFnZSUyRm5hdmVyX2ljb24ucG5n&docker_id=d4drKhidbvkV1Nc3HZz&secure_session_id=FwAk5nbeqzeCsQeB1gYNcmHCbmXTAtq4";
-  const users = [ //TEST 용
-		{
-			userId : 1,
-			nickName : "test11",
-			email : "test11@gmail.com",
-			authority : "ADMIN",
-		},
-		{
-			userId : 2,
-			nickName : "test22",
-			email : "test22@gmail.com",
-			authority : "USER",
-		},
-    {
-			userId : 3,
-			nickName : "test22",
-			email : "test22@gmail.com",
-			authority : "PENDING",
-		},
-	];
-  
   const router = useRouter();
 
+  const myUserId = useAppSelector(selectUserId);
+  
   const workspaceId = useMemo(() => router.query.workspaceId, [router]);
   
-  const {data: workspaceData} = useQuery(
-    [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID],
-    () => getWorkspaceUserByWId({workspaceId}),
-    {
+  const {data: workspaceData} = useQuery({
+      queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId],
+      queryFn: () => getWorkspaceUserByWId({workspaceId}),
       enabled: !!workspaceId,
-      onError: () => router.push(`/workspace/${workspaceId}`),
-      initialData: {},
+      onError: () => {
+        toast.error('해당 워크스페이스의 관리자가 아닙니다. 관리자에게 문의해 주세요.');
+        router.push(`/workspace/${workspaceId}`);
+      },
+      initialData: {users: [], workspaceName: '', profile: ''},
+    });
+  
+  const { values, errors, touched, handleChange, handleBlur, setFieldValue, setFieldError } = useFormik({
+    initialValues: {
+      name: '',
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().max(30, '30자 이내 팀 이름을 입력해 주세요.').required('30자 이내 팀 이름을 입력해 주세요.'),
+    }),
+  });
+  
+  useEffect(() => {
+    if (workspaceData.workspaceName) {
+      setFieldValue('name', workspaceData.workspaceName)
     }
-  );
-  console.log(workspaceData);
+  }, [workspaceData, setFieldValue]);
   
   const [searchKeyword, setSearchKeyword] = useState('');
-  const {data: {users: searchResults}, refetch} = useQuery(
-    [USER_QUERY_KEY.SEARCH_USER],
-    () => searchUser({keyword: searchKeyword}),
-    {
-      enabled: !!searchKeyword,
-      initialData: {users: []},
-    });
+  const {data: {users: searchResults}, refetch} = useQuery({
+    queryKey: [USER_QUERY_KEY.SEARCH_USER],
+    queryFn: () => searchUser({keyword: searchKeyword}),
+    enabled: !!searchKeyword,
+    initialData: {users: []},
+  });
 
   useEffect(() => {
     if (!!searchKeyword) {
@@ -85,26 +78,42 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
     }
   }, [searchKeyword, refetch]);
   
-  const { values, errors, touched, handleChange, handleBlur, setFieldError } = useFormik({
-    initialValues: {
-      name: workspaceData.workspaceName,
-    },
-    validationSchema: Yup.object({
-      name: Yup.string().max(30, '30자 이내 팀 이름을 입력해 주세요.').required('30자 이내 팀 이름을 입력해 주세요.'),
-    }),
-  });
-  
   const onChangeSearchInput = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setSearchKeyword(e.target.value);
   }, []);
   
+  const queryClient = useMemo(() => new QueryClient(), []);
+  const {mutate: _addWorkspaceUser} = useMutation(addWorkspaceUser, {
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({querykey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId], refetchType: 'inactive'});
+      console.log(res);
+    },
+  })
   const onClickAddUser = useCallback(
-    (user) => () => {
+    (user) => async () => {
       setSearchKeyword('');
+      
+      const memberUIdList = workspaceData.users.map((u) => u.userId);
+      if (memberUIdList.filter(id => id === user.userId).length !== 0) {
+        toast.error('이미 초대된 사용자입니다.');
+        return;
+      }
+
+      await _addWorkspaceUser({
+        workspaceId,
+        userId: user.userId,
+      });
       // if (candidateUserList.filter(u => u.userId === user.userId).length !== 0) return;
       // setCandidateUserList(prev => [...prev, user]);
-    }, []);
+    }, [workspaceData, workspaceId, _addWorkspaceUser]);
   
+  
+  const {mutate: _deleteWorkspaceUser} = useMutation(deleteWorkspaceUser, {
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({querykey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId], refetchType: 'inactive'});
+      console.log(res);
+    },
+  });
   const [selectedKickedUserId, setSelectedKickedUserId] = useState<number | null>(null);
   const onClickKickUser = useCallback(
     (userId) => () => {
@@ -112,10 +121,12 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
       kickModalOpen();
     }, [kickModalOpen]);
   const onKickUser = useCallback(() => {
-    //TODO API 연동
-    console.log(selectedKickedUserId);
+    _deleteWorkspaceUser({
+        workspaceId,
+        userId: selectedKickedUserId,
+      });
     kickModalClose();
-  }, [selectedKickedUserId, kickModalClose]);
+  }, [selectedKickedUserId, kickModalClose, _deleteWorkspaceUser, workspaceId]);
   
   useEffect(() => {
     if (!kickModalIsOpened) {
@@ -123,17 +134,58 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
     }
   }, [kickModalIsOpened]);
   
-  const onClickWithdraw = useCallback(() => {
-    //TODO API 연동
+  const onClickWithdraw = useCallback(async () => {
+    await deleteWorkspaceUser({
+      workspaceId,
+      userId: myUserId,
+    }).then(() => {
+      queryClient.invalidateQueries({queryKey: [USER_QUERY_KEY.GET_MY_WORKSPACE_LIST]});
+      router.push('/workspace/personal');
+    }).catch((error) => {
+      toast.error(error.message);
+    });
     withdrawModalClose();
-    router.push('/workspace/personal');
-  }, [withdrawModalClose, router]);
+  }, [withdrawModalClose, router, workspaceId, myUserId]);
   
+  const {mutate: _deleteWorkspace} = useMutation(deleteWorkspace, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: [USER_QUERY_KEY.GET_MY_WORKSPACE_LIST]});
+      router.push('/workspace/personal')
+    },
+  });
   const onClickDelete = useCallback(() => {
-    //TODO API 연동
+    _deleteWorkspace({workspaceId});
     deleteModalClose();
     router.push('/workspace/personal');
-  }, [deleteModalClose, router]);
+  }, [deleteModalClose, router, _deleteWorkspace, workspaceId]);
+  
+  const [profile, setProfile] = useState('');
+  useEffect(() => {
+    if (workspaceData?.profile) {
+      setProfile(workspaceData.profile);
+    }
+  }, [workspaceData])
+  const onChangeImage = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
+    const { files, name } = e.target;
+    console.log(files, name);
+    // TODO 이미지 업로드 연동 진행 중
+    if (files && files.length > 0) {
+      const image = files[0];
+      const formData = new FormData();
+      formData.enctype='multipart/form-data';
+      formData.append('image', image);
+      console.log(formData);
+      await uploadImage(formData)
+          .then((res: string) => {
+            console.log(res);
+            setProfile(res);
+            return;
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+    }
+  }, []);
   
   return (
     <Container style={{width: '100%'}}>
@@ -142,8 +194,8 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '120px', rowGap: '18px'}}>
           <Circle>
             {profile ? (
-              <Image width={112} height={112} src={profile} alt='프로필 이미지' />
-            ) : name[0]}
+              <Image width={112} height={112} style={{borderRadius: '100%'}} src={profile} alt='프로필 이미지' />
+            ) : workspaceData.workspaceName[0]}
           </Circle>
           <ButtonShort
             buttonStyle={{
@@ -155,7 +207,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
               backgroundColor: AppColor.main,
             }}
             label='사진 변경'
-            onClick={() => {}}
+            onClick={onChangeImage}
           />
         </div>
         
@@ -177,7 +229,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
         <div>
           <div style={{display: 'flex', columnGap: '6px', alignItems: 'flex-end', marginBottom: '10px'}}>
             <Label>멤버 목록</Label>
-            <div>{users.length}명</div>
+            <div>{workspaceData.users.length}명</div>
           </div>
           <div style={{position: 'relative'}}>
             <TextInput
@@ -207,11 +259,11 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
           <div style={{marginTop: '20px'}}>
             <table style={{width: '100%', borderCollapse: 'collapse', fontSize: '16px'}}>
               <tbody style={{fontWeight: '500'}}>
-                {users.map(({userId, nickName, authority, email}) => (
+                {workspaceData.users.map(({userId, nickName, authority, email}) => (
                   <tr key={userId} style={{borderBottom: `1px solid ${AppColor.border.gray}`, padding: '4px 0px'}}>
                     <td style={{width: '16%', padding: '10px'}}>{nickName}</td>
                     <td>{email}</td>
-                    {isAdmin ? (
+                    {myUserId !== userId ? (
                       <>
                         <td style={{width: '14%', textAlign: 'center', padding: '10px 0px', color: AppColor.text.lightblack}}>
                           <AuthorityDropDown authority={authority} userId={userId} />
@@ -222,14 +274,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
                           </KickButton>
                         </td>
                       </>
-                    ) : (
-                      <>
-                        <td style={{width: '18%', textAlign: 'center', padding: '10px 0px', color: AppColor.text.lightblack}}>
-                          {transrateAuthority(authority)}
-                        </td>
-                        <td style={{width: '20%'}}></td>
-                      </>
-                    )}
+                    ) : (<></>)}
                   </tr>
                 ))}
               </tbody>

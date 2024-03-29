@@ -22,6 +22,7 @@ const user = createSlice({
 
 export const selectMe = (state: RootState) => state.user?.me;
 export const selectNickName = (state: RootState) => state.user?.me ? state.user.me.nickName : '';
+export const selectUserId = (state: RootState) => state.user?.me ? state.user.me.userId : undefined;
 
 const { actions, reducer } = user;
 

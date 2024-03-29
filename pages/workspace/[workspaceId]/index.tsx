@@ -14,6 +14,9 @@ import styled from '@emotion/styled';
 import dayjs from 'dayjs';
 import { makeCalendarArray } from '@utils/Utils';
 import {ScheduleStatusType} from '@customTypes/types';
+import { useQuery, useMutation, QueryClient } from '@tanstack/react-query';
+// import { USER_QUERY_KEY } from '@apis/userApi';
+import { WORKSPACE_QUERY_KEY, getWorkspaceCalendarByMonth, getWorkspaceSchedulesByDate } from '@apis/workspaceApi';
 
 interface TeamWorkspaceProps {}
 
@@ -27,6 +30,13 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const selectedDateFormatMMDD = useMemo(() => dayjs(selectedDate).format('MM/DD'), [selectedDate]);
+  
+  const {data} = useQuery({
+    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_CALENDAR_BY_MONTH],
+    queryFn: () => getWorkspaceCalendarByMonth({workspaceId, month: selectedYear.toString() + selectedMonth.toString()}),
+    enabled: !!(selectedYear && selectedMonth),
+  });
+  console.log(data);
   
   const calendarData = useMemo(() => {
     const calendarArray = makeCalendarArray(selectedYear, selectedMonth);
