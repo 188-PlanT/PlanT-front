@@ -7,23 +7,29 @@ import DateCarousel from '@components/DateCarousel';
 import SettingButton from '@components/SettingButton';
 import ShortButton from '@components/atoms/ShortButton';
 import Day from '@components/Day';
+import WorkspaceWithdrawConfirmModal from '@components/modals/WorkspaceWithdrawConfirmModal';
+import useModal from '@hooks/useModal';
 import { NextPageWithLayout } from 'pages/_app';
 import AppColor from '@styles/AppColor';
 import {useRouter} from 'next/router';
 import {useCallback, useState, useMemo} from 'react';
 import styled from '@emotion/styled';
 import dayjs from 'dayjs';
+import { toast } from 'react-toastify';
 import { makeCalendarArray } from '@utils/Utils';
-import {ScheduleStatusType} from '@customTypes/types';
+import { ScheduleStatusType } from '@customTypes/types';
 import { useQuery, useMutation, QueryClient } from '@tanstack/react-query';
-// import { USER_QUERY_KEY } from '@apis/userApi';
-import { WORKSPACE_QUERY_KEY, getWorkspaceCalendarByMonth, getWorkspaceSchedulesByDate } from '@apis/workspaceApi';
+import { USER_QUERY_KEY } from '@apis/userApi';
+import { WORKSPACE_QUERY_KEY, deleteWorkspaceUser, getWorkspaceCalendarByMonth, getWorkspaceSchedulesByDate } from '@apis/workspaceApi';
+import { useAppSelector } from '@store/configStore';
+import {selectUserId} from '@store/slices/user';
 
 interface TeamWorkspaceProps {}
 
 const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
   const router = useRouter();
   
+  const myUserId = useAppSelector(selectUserId);
   const workspaceId = useMemo(() => router.query.workspaceId, [router]);
 
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -46,17 +52,13 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
         {
           date: d,
           scheduleData: scheduleData.schedules,
-          //TODO 더미 데이터 삭제
-          // scheduleData: [
-          //  {scheduleId: 1, scheduleName: 'string', state: 'DONE'}, {scheduleId: 1, scheduleName: 'string', state: 'INPROGRESS'}, {scheduleId: 1, scheduleName: 'string', state: 'TODO'}
-          //]
         }
       )
     );
   }, [selectedYear, selectedMonth]);
   const workspaceName = useMemo(() => scheduleData.workspaceName, [scheduleData]);
   
-  const isAdmin = useMemo(() => scheduleData.role === 'Admin', [scheduleData]);
+  const isAdmin = useMemo(() => scheduleData.role === 'ADMIN', [scheduleData]);
   
   const {data: selectedDateScheduleData} = useQuery({
     queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_SCHEDULES_BY_DATE, selectedDate],
@@ -87,6 +89,28 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
     setSelectedDate(_date);
   }, []);
   
+  const queryClient = useMemo(() => new QueryClient(), []);
+  
+  const {mutate: _deleteWorkspaceUser} = useMutation(deleteWorkspaceUser, {
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({querykey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId], refetchType: 'inactive'});
+      console.log(res);
+    },
+  });
+  const [withdrawModalIsOpened, withdrawModalOpen, withdrawModalClose] = useModal();
+  const onClickWithdraw = useCallback(async () => {
+    await deleteWorkspaceUser({
+      workspaceId,
+      userId: myUserId,
+    }).then(() => {
+      queryClient.invalidateQueries({queryKey: [USER_QUERY_KEY.GET_MY_WORKSPACE_LIST]});
+      router.push('/workspace/personal');
+    }).catch((error) => {
+      toast.error(error.message);
+    });
+    withdrawModalClose();
+  }, [withdrawModalClose, router, workspaceId, myUserId]);
+  
   return (
     <div>
       <PageName pageName={workspaceName} />
@@ -97,11 +121,14 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
             wrapperStyle={{width: '100%'}}
             placeholder="일정 검색하기"
           />
-          <div style={{display: 'flex', justifyContent: 'space-between', position: 'relative', width: '100%'}}>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', width: '100%'}}>
             {
               isAdmin ? 
                 <SettingButton href={`/workspace/${workspaceId}/setting`} /> : 
-                <ShortButton label='팀 나가기' buttonStyle={{backgroundColor: AppColor.text.error, height: '40px'}} />
+                <ShortButton 
+                  label='팀 나가기'
+                  buttonStyle={{backgroundColor: AppColor.text.error, height: '40px'}}
+                  onClick={withdrawModalOpen} />
             }
             <DateCarousel selectedYear={selectedYear} selectedMonth={selectedMonth} onClickPrevMonth={onClickPrevMonth} onClickNextMonth={onClickNextMonth} />
             <PlusButton path={`/workspace/${workspaceId}/add`} color={AppColor.etc.white} backgroundColor={AppColor.main} />
@@ -145,6 +172,7 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
           )}
         </SelectedDateListContainer>
       </div>
+      <WorkspaceWithdrawConfirmModal isOpened={withdrawModalIsOpened} closeModal={withdrawModalClose} onClick={onClickWithdraw} />
     </div>
   );
 };
