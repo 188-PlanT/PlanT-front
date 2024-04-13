@@ -24,7 +24,7 @@ export default function useMe() {
     },
     onError: () => {
       setIsLogedIn(false);
-      router.push('/auth/login');
+      // router.push('/auth/login'); //TODO 주석 풀기
     },
     retry: false,
     initialData: null,

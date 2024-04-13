@@ -116,7 +116,7 @@ export async function getWorkspaceCalendarByMonth({workspaceId, month}: {workspa
   try {
     const {
       data,
-    } = await axiosInstance.get(`${prefix}/${workspaceId}/calendar?${month}`);
+    } = await axiosInstance.get(`${prefix}/${workspaceId}/calendar?date=${month}`);
     return data;
   } catch (error) {
     throw error;
@@ -127,7 +127,7 @@ export async function getWorkspaceSchedulesByDate({workspaceId, date}: {workspac
   try {
     const {
       data,
-    } = await axiosInstance.get(`${prefix}/${workspaceId}/schedules?${date}`);
+    } = await axiosInstance.get(`${prefix}/${workspaceId}/schedules?date=${date}`);
     return data;
   } catch (error) {
     throw error;

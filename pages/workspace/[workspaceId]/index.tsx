@@ -5,6 +5,7 @@ import ToDoCard from '@components/ToDoCard';
 import PlusButton from '@components/PlusButton';
 import DateCarousel from '@components/DateCarousel';
 import SettingButton from '@components/SettingButton';
+import ShortButton from '@components/atoms/ShortButton';
 import Day from '@components/Day';
 import { NextPageWithLayout } from 'pages/_app';
 import AppColor from '@styles/AppColor';
@@ -23,26 +24,47 @@ interface TeamWorkspaceProps {}
 const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
   const router = useRouter();
   
-  const workspaceName = "김성훈의 마지막 잎새";  //TEST 용
   const workspaceId = useMemo(() => router.query.workspaceId, [router]);
-  
+
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const month = useMemo(() => selectedYear.toString() + selectedMonth.toString().padStart(2, '0'), [selectedYear, selectedMonth]);
+  
   const [selectedDate, setSelectedDate] = useState(new Date());
   const selectedDateFormatMMDD = useMemo(() => dayjs(selectedDate).format('MM/DD'), [selectedDate]);
   
-  const {data} = useQuery({
-    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_CALENDAR_BY_MONTH],
-    queryFn: () => getWorkspaceCalendarByMonth({workspaceId, month: selectedYear.toString() + selectedMonth.toString()}),
-    enabled: !!(selectedYear && selectedMonth),
+  const {data: scheduleData} = useQuery({
+    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_CALENDAR_BY_MONTH, month],
+    queryFn: () => getWorkspaceCalendarByMonth({workspaceId, month}),
+    enabled: !!(selectedYear && selectedMonth && workspaceId),
+    initialData: {workspaceName: '', role: 'USER', schedules: []},
   });
-  console.log(data);
-  
   const calendarData = useMemo(() => {
     const calendarArray = makeCalendarArray(selectedYear, selectedMonth);
-    return calendarArray.map(d => ({date: d, scheduleData: [{scheduleId: 1, scheduleName: 'string', state: 'DONE'}, {scheduleId: 1, scheduleName: 'string', state: 'INPROGRESS'}, {scheduleId: 1, scheduleName: 'string', state: 'TODO'}]}));
+    return calendarArray.map(
+      d => (
+        {
+          date: d,
+          scheduleData: scheduleData.schedules,
+          //TODO 더미 데이터 삭제
+          // scheduleData: [
+          //  {scheduleId: 1, scheduleName: 'string', state: 'DONE'}, {scheduleId: 1, scheduleName: 'string', state: 'INPROGRESS'}, {scheduleId: 1, scheduleName: 'string', state: 'TODO'}
+          //]
+        }
+      )
+    );
   }, [selectedYear, selectedMonth]);
+  const workspaceName = useMemo(() => scheduleData.workspaceName, [scheduleData]);
   
+  const isAdmin = useMemo(() => scheduleData.role === 'Admin', [scheduleData]);
+  
+  const {data: selectedDateScheduleData} = useQuery({
+    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_SCHEDULES_BY_DATE, selectedDate],
+    queryFn: () => getWorkspaceSchedulesByDate({workspaceId, date: dayjs(selectedDate).format('YYYYMMDD').toString()}),
+    enabled: !!(selectedDate && workspaceId),
+    initialData: {workspaceName: '', schedules: []},
+  });
+
   const onClickPrevMonth = useCallback(() => {
     if (selectedMonth === 1) {
       setSelectedMonth(12);
@@ -76,7 +98,11 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
             placeholder="일정 검색하기"
           />
           <div style={{display: 'flex', justifyContent: 'space-between', position: 'relative', width: '100%'}}>
-            <SettingButton href={`/workspace/${workspaceId}/setting`} />
+            {
+              isAdmin ? 
+                <SettingButton href={`/workspace/${workspaceId}/setting`} /> : 
+                <ShortButton label='팀 나가기' buttonStyle={{backgroundColor: AppColor.text.error, height: '40px'}} />
+            }
             <DateCarousel selectedYear={selectedYear} selectedMonth={selectedMonth} onClickPrevMonth={onClickPrevMonth} onClickNextMonth={onClickNextMonth} />
             <PlusButton path={`/workspace/${workspaceId}/add`} color={AppColor.etc.white} backgroundColor={AppColor.main} />
           </div>
@@ -107,19 +133,16 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
         
         <SelectedDateListContainer>
           <SelectedDateText>{selectedDateFormatMMDD} 플랜</SelectedDateText>
-          <ToDoCard workspaceId={1} scheduleId={1} workspaceName={workspaceName} scheduleName={'일정 이름 일정 이름 일정 이름 일정 이름 일정 이름 일정 이름 일정 이름 일정 이름 일정 이름 일정 이름'} status={'TODO'} />
-          <ToDoCard workspaceId={1} scheduleId={1} workspaceName={workspaceName} scheduleName={'일정 이름 일정 이름'} status={'TODO'} />
-          <ToDoCard workspaceId={1} scheduleId={1} workspaceName={workspaceName} scheduleName={'일정 이름 일정 이름'} status={'TODO'} />
-          <ToDoCard workspaceId={1} scheduleId={1} workspaceName={workspaceName} scheduleName={'일정 이름 일정 이름'} status={'DONE'} />
-          <ToDoCard workspaceId={1} scheduleId={1} workspaceName={workspaceName} scheduleName={'일정 이름 일정 이름'} status={'INPROGRESS'} />
-          <ToDoCard workspaceId={1} scheduleId={1} workspaceName={workspaceName} scheduleName={'일정 이름 일정 이름'} status={'TODO'} />
-          <ToDoCard workspaceId={1} scheduleId={1} workspaceName={workspaceName} scheduleName={'일정 이름 일정 이름'} status={'INPROGRESS'} />
-          <ToDoCard workspaceId={1} scheduleId={1} workspaceName={workspaceName} scheduleName={'일정 이름 일정 이름'} status={'INPROGRESS'} />
-          <ToDoCard workspaceId={1} scheduleId={1} workspaceName={workspaceName} scheduleName={'일정 이름 일정 이름'} status={'TODO'} />
-          <ToDoCard workspaceId={1} scheduleId={1} workspaceName={workspaceName} scheduleName={'일정 이름 일정 이름'} status={'TODO'} />
-          <ToDoCard workspaceId={1} scheduleId={1} workspaceName={workspaceName} scheduleName={'일정 이름 일정 이름'} status={'INPROGRESS'} />
-          <ToDoCard workspaceId={1} scheduleId={1} workspaceName={workspaceName} scheduleName={'일정 이름 일정 이름'} status={'TODO'} />
-          <ToDoCard workspaceId={1} scheduleId={1} workspaceName={workspaceName} scheduleName={'일정 이름 일정 이름'} status={'DONE'} />
+          {selectedDateScheduleData.schedules.map(
+            (schedule) => 
+              <ToDoCard 
+                workspaceId={workspaceId} 
+                scheduleId={schedule.scheduleId} 
+                workspaceName={workspaceName} 
+                scheduleName={schedule.scheduleName} 
+                status={schedule.state} 
+              />
+          )}
         </SelectedDateListContainer>
       </div>
     </div>
