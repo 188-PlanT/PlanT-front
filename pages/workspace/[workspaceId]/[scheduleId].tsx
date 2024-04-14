@@ -7,61 +7,50 @@ import Status from '@components/Status';
 import TextInput from '@components/atoms/TextInput';
 import ShortButton from '@components/atoms/ShortButton';
 import ScheduleComment from '@components/ScheduleComment';
-import {useState, useMemo, useCallback, ChangeEvent} from 'react';
-import {useRouter} from 'next/router';
+import { useState, useMemo, useCallback, useEffect, ChangeEvent } from 'react';
+import { useRouter } from 'next/router';
 import styled from '@emotion/styled';
-import {formatDate} from '@utils/Utils';
-import {ScheduleStatus, ScheduleStatusType} from '@customTypes/types';
+import { formatDate } from '@utils/Utils';
+import {ScheduleStatus, ScheduleStatusType } from '@customTypes/types';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { SCHEDULE_QUERY_KEY, getScheduleDetailByScheduleId, updateScheduleState, deleteSchedule } from '@apis/scheduleApi';
 import qs from 'qs';
+import { toast } from 'react-toastify';
 
 interface TeamScheduleProps {}
 
 const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
   const router = useRouter();
 
-  const isAdmin = true; //TODO 테스트용
-  const data = { //TODO 테스트용
-    scheduleId : 1,
-    workspaceId : 1,
-    workspaceName: 'testWorkspace1',
-    name : 'testSchedule1',
-    users : [
-      {
-        userId : 1,
-        nickName : "test11",
-      },
-      {
-        userId : 2,
-        nickName : "test22",
-      },
-    ],
-    startDate : "20240101:00:00",
-    endDate : "20240101:00:00",
-    content : "<p>asdadas</p><p>asdasdasda</p><p>asddskㅇ닝ㅁ닝ㅁㄴ</p><p>ㅏ나안ㅇㄴ</p><p>ㅁ낭미나어미ㅏ너이만ㅇ미너이만ㅇ</p><p>ㅁ나어ㅣㅏㅁㄴ이마너</p><p>ㅁㄴㅇㅁㅇㅁㄴㅇ</p><p>ㄴㅇㄴㅇㄴㅇ</p>",
-    images : [],
-    state : "TODO",
-    chatList : [
-      {
-        chatId : 1,
-        userId: 1,
-        nickName : "test11",
-        content : "test chat",
-        createdDate: '20240208:10:34',
-      },
-      {
-        chatId : 2,
-        userId: 2,
-        nickName : "test22",
-        content : "test chat",
-        createdDate: '20240211:13:15',
-      },
-    ],
-  };
+  const {scheduleId, workspaceId} = useMemo(() => router.query, [router]);
   
-  const formedDate = useMemo(() => {
-    const start = formatDate(data.startDate, 'YYYY년 MM월 DD일 HH:mm');
-    const end = formatDate(data.endDate, 'YYYY년 MM월 DD일 HH:mm');
-    return {start, end};
+  const {data} = useQuery({
+    queryKey: [SCHEDULE_QUERY_KEY.GET_SCHEDULE_DETAIL_BY_SID, scheduleId],
+    queryFn: () => getScheduleDetailByScheduleId({scheduleId}),
+    enabled: !!scheduleId,
+    initialData: {users: [], chatList: []},
+    retry: 1,
+    onError: () => {
+      toast.error('접근 할 수 없거나 존재하지 않는 일정입니다.');
+      router.push(`/workspace/${workspaceId}`);
+    }
+  });
+
+  const [formattedDate, setFormattedDate] = useState({
+    start: formatDate('', 'YYYY년 MM월 DD일 HH:mm'), 
+    end: formatDate('', 'YYYY년 MM월 DD일 HH:mm'),
+  });
+  const [status, setStatus] = useState('TODO');
+  useEffect(() => {
+    if (data.startDate && data.endDate) {
+      setFormattedDate({
+        start: formatDate(data.startDate, 'YYYY년 MM월 DD일 HH:mm'),
+        end: formatDate(data.endDate, 'YYYY년 MM월 DD일 HH:mm'),
+      });
+    }
+    if (data.state) {
+      setStatus(data.state);
+    }
   }, [data]);
   
   const [comment, setComment] = useState('');
@@ -74,10 +63,25 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
     setComment('');
   }, [comment]);
   
+  const {mutate: _updateScheduleState} = useMutation(updateScheduleState, {
+    onSuccess: (data, valiable) => {
+      setStatus(valiable.state);
+      toast.success('일정 진행 상태 변경 완료');
+    },
+  });
   const onClickStatus = useCallback((status: ScheduleStatusType) => () => {
-    //TODO API 연결
-    console.log(status);
-  }, []);  
+    _updateScheduleState({scheduleId, state: status});
+  }, [scheduleId, _updateScheduleState]);
+  
+  const {mutate: _deleteSchedule} = useMutation(deleteSchedule, {
+    onSuccess: () => {
+      toast.error('일정 삭제 완료');
+      router.push(`/workspace/${workspaceId}`);
+    }
+  });
+  const onClickDelete = useCallback(() => {
+    _deleteSchedule({scheduleId});
+  }, [scheduleId, _deleteSchedule]);
   
   const onClickEdit = useCallback(() => {
     const query = qs.stringify({
@@ -109,7 +113,7 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
                        <StatusButton
                          key={s}
                          onClick={onClickStatus(s)}
-                         style={{...(data.state === s && {border: `2px solid ${AppColor.border.black}`})}}
+                         style={{...(status === s && {border: `2px solid ${AppColor.border.black}`})}}
                        >
                          <Status size='30px' status={s} />
                        </StatusButton>
@@ -135,9 +139,9 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
             </div>
             
             <div style={{display: 'flex', alignItems: 'center', columnGap: '10px', fontWeight: '500', color: AppColor.text.secondary}}>
-              <Date>{formedDate.start}</Date>
+              <Date>{formattedDate.start}</Date>
               <div style={{marginTop: '2px', height: '1px', width: '40px', border: `1.5px solid ${AppColor.text.secondary}`, backgroundColor: AppColor.text.secondary}} />
-              <Date>{formedDate.end}</Date>
+              <Date>{formattedDate.end}</Date>
               <div style={{alignSelf: 'flex-end'}}>까지</div>
             </div>
             
@@ -164,37 +168,34 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
               <div dangerouslySetInnerHTML={{__html: data.content}}></div>
             </div>
           </div>
-          
-          {isAdmin && (
-            <div style={{display: 'flex', columnGap: '14px', justifyContent: 'flex-end'}}>
-              <ShortButton
-                onClick={() => {}}
-                label='삭제'
-                buttonStyle={{
-                  backgroundColor: AppColor.text.error,
-                  width: '60px',
-                  height: '32px',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  borderRadius: '6px',
-                  padding: '0',
-                }}  
-              />
-              <ShortButton
-                onClick={onClickEdit}
-                label='수정'
-                buttonStyle={{
-                  backgroundColor: AppColor.main,
-                  width: '60px',
-                  height: '32px',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  borderRadius: '6px',
-                  padding: '0',
-                }}
-              />
-            </div>
-          )}
+          <div style={{display: 'flex', columnGap: '14px', justifyContent: 'flex-end'}}>
+            <ShortButton
+              onClick={onClickDelete}
+              label='삭제'
+              buttonStyle={{
+                backgroundColor: AppColor.text.error,
+                width: '60px',
+                height: '32px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                borderRadius: '6px',
+                padding: '0',
+              }}  
+            />
+            <ShortButton
+              onClick={onClickEdit}
+              label='수정'
+              buttonStyle={{
+                backgroundColor: AppColor.main,
+                width: '60px',
+                height: '32px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                borderRadius: '6px',
+                padding: '0',
+              }}
+            />
+          </div>
         </div>
       </Container>
     </div>

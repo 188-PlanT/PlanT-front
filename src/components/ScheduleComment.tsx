@@ -10,7 +10,7 @@ interface ScheduleCommentProps {
 
 //TODO 편집 기능 추가
 export default function ScheduleComment({chat}: ScheduleCommentProps) {
-  const formatedDate = useMemo(() => {
+  const formattedDate = useMemo(() => {
     return formatDate(chat.createdDate, 'YYYY년 MM월 DD일 A hh:mm');
   }, [chat]);
   
@@ -18,7 +18,7 @@ export default function ScheduleComment({chat}: ScheduleCommentProps) {
     <Container>
       <div style={{display: 'flex', alignItems: 'center', columnGap: '6px'}}>
         <NickName>{chat.nickName}</NickName>
-        <Date>{formatedDate}</Date>
+        <Date>{formattedDate}</Date>
       </div>
       <Content>{chat.content}</Content>
     </Container>

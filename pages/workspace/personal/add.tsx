@@ -28,7 +28,7 @@ interface AddPersonalScheduleProps {}
 const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) => {
   const router = useRouter();
   
-  const workspaceName = '김성훈의 마지막 잎새'; //TEST 용
+  // const workspaceName = '김성훈의 마지막 잎새'; //TEST 용
   
   const [stopModalIsOpened, stopModalOpenModal, stopModalCloseModal] = useModal();
   const [confirmModalIsOpened, confirmModalOpenModal, confirmModalCloseModal] = useModal();
@@ -114,7 +114,7 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
   
   return (
     <Container>
-      <PageName pageName={workspaceName} additionalName={name} />
+      <PageName pageName={selectedWorkspace?.workspaceName ? selectedWorkspace?.workspaceName : '일정 생성하기'} additionalName={name} />
       
       <div style={{margin: '50px 18%'}}>
         <div style={{display: 'flex', flexDirection: 'column', rowGap: '20px'}}>

@@ -4,12 +4,12 @@ import Link from 'next/link';
 import {BaseHTMLAttributes, DetailedHTMLProps} from 'react';
 
 interface PlusButtonProps {
-  path: string;
+  path: string | {pathname: string; query: any};
   backgroundColor?: string;
   color?: string;
 }
 
-export default function PlusButton({path, backgroundColor, color, ...props}: PlusButtonProps & DetailedHTMLProps<BaseHTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
+export default function PlusButton({path, as, backgroundColor, color, ...props}: PlusButtonProps & DetailedHTMLProps<BaseHTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
 
   return (
     <Link href={path}>

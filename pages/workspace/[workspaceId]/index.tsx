@@ -11,8 +11,8 @@ import WorkspaceWithdrawConfirmModal from '@components/modals/WorkspaceWithdrawC
 import useModal from '@hooks/useModal';
 import { NextPageWithLayout } from 'pages/_app';
 import AppColor from '@styles/AppColor';
-import {useRouter} from 'next/router';
-import {useCallback, useState, useMemo} from 'react';
+import { useRouter } from 'next/router';
+import { useCallback, useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import dayjs from 'dayjs';
 import { toast } from 'react-toastify';
@@ -22,7 +22,7 @@ import { useQuery, useMutation, QueryClient } from '@tanstack/react-query';
 import { USER_QUERY_KEY } from '@apis/userApi';
 import { WORKSPACE_QUERY_KEY, deleteWorkspaceUser, getWorkspaceCalendarByMonth, getWorkspaceSchedulesByDate } from '@apis/workspaceApi';
 import { useAppSelector } from '@store/configStore';
-import {selectUserId} from '@store/slices/user';
+import { selectUserId } from '@store/slices/user';
 
 interface TeamWorkspaceProps {}
 
@@ -131,7 +131,16 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
                   onClick={withdrawModalOpen} />
             }
             <DateCarousel selectedYear={selectedYear} selectedMonth={selectedMonth} onClickPrevMonth={onClickPrevMonth} onClickNextMonth={onClickNextMonth} />
-            <PlusButton path={`/workspace/${workspaceId}/add`} color={AppColor.etc.white} backgroundColor={AppColor.main} />
+            <PlusButton 
+              path={{
+                pathname: `/workspace/${workspaceId}/add`,
+                query: {
+                  workspaceName,
+                },
+              }}
+              color={AppColor.etc.white}
+              backgroundColor={AppColor.main}
+            />
           </div>
           <Calendar>
             <Weekly>

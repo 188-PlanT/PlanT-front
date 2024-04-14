@@ -15,7 +15,7 @@ import styled from '@emotion/styled';
 import AppColor from '@styles/AppColor';
 import Image from 'next/image';
 import FolderIcon from '@public/image/folder_icon.png';
-import {useState, useCallback, ChangeEvent} from 'react';
+import {useState, useCallback, useMemo, ChangeEvent} from 'react';
 import {ScheduleStatus, ScheduleStatusType} from '@customTypes/types';
 import {useRouter} from 'next/router';
 import useModal from '@hooks/useModal';
@@ -30,8 +30,8 @@ const AddTeamSchedule: NextPageWithLayout<AddTeamScheduleProps> = ({}) => {
   
   const [stopModalIsOpened, stopModalOpenModal, stopModalCloseModal] = useModal();
   const [confirmModalIsOpened, confirmModalOpenModal, confirmModalCloseModal] = useModal();
-  
-  const workspaceName = '김성훈의 마지막 잎새'; //TEST 용
+
+  const workspaceName = useMemo(() => router.query.workspaceName ? router.query.workspaceName : '일정 생성하기', [router]);
   
   const [name, setName] = useState('');
   const onChangeName = useCallback((e: ChangeEvent<HTMLInputElement>) => {setName(e.target.value)}, []);
