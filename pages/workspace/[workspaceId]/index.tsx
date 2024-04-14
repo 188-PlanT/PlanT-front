@@ -45,8 +45,11 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
     enabled: !!(selectedYear && selectedMonth && workspaceId),
     initialData: {workspaceName: '', role: 'USER', schedules: []},
   });
+
   const calendarData = useMemo(() => {
     const calendarArray = makeCalendarArray(selectedYear, selectedMonth);
+    //TODO 수정 필요. 각 날짜와 그에 맞는 스케쥴 필터링 해서 매칭시켜주기
+    const schedules = scheduleData.map(s => ({...s, date: ''}));
     return calendarArray.map(
       d => (
         {
@@ -55,7 +58,7 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
         }
       )
     );
-  }, [selectedYear, selectedMonth]);
+  }, [selectedYear, selectedMonth, scheduleData]);
   const workspaceName = useMemo(() => scheduleData.workspaceName, [scheduleData]);
   
   const isAdmin = useMemo(() => scheduleData.role === 'ADMIN', [scheduleData]);
@@ -172,6 +175,7 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
           {selectedDateScheduleData.schedules.map(
             (schedule) => 
               <ToDoCard 
+                key={schedule.scheduleId}
                 workspaceId={workspaceId} 
                 scheduleId={schedule.scheduleId} 
                 workspaceName={workspaceName} 

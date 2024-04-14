@@ -31,8 +31,13 @@ export default function WorkspaceMemberDropDown({memberList, onClickItem}: Works
       />
       {isOpend && (
         <DropDownList>
-          <Item onClick={onClickAddAll}>모두 추가</Item>
-          {memberList.map((u) => <Item onClick={onClickItem(u)} key={u.userId}>{u.nickName}</Item>)}
+          {memberList.length === 0 ?
+            <Item>선택할 수 있는 멤버가 없습니다. 워크스페이스를 선택해 주세요.</Item> :
+            <>
+              <Item onClick={onClickAddAll}>모두 추가</Item>
+              {memberList.map((u) => <Item onClick={onClickItem(u)} key={u.userId}>{u.nickName}</Item>)}
+            </>
+          }
         </DropDownList>
       )}
     </div>

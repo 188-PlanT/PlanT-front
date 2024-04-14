@@ -21,9 +21,11 @@ import {useRouter} from 'next/router';
 import useModal from '@hooks/useModal';
 import ScheduleCreateStopModal from '@components/modals/ScheduleCreateStopModal';
 import ScheduleCreateConfirmModal from '@components/modals/ScheduleCreateConfirmModal';
-import {useMutation} from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { SCHEDULE_QUERY_KEY, createSchedule } from '@apis/scheduleApi';
-import {toast} from 'react-toastify';
+import { WORKSPACE_QUERY_KEY, getWorkspaceUserByWId } from '@apis/workspaceApi';
+import { toast } from 'react-toastify';
+import dayjs from 'dayjs';
 
 interface AddTeamScheduleProps {}
 
@@ -33,12 +35,23 @@ const AddTeamSchedule: NextPageWithLayout<AddTeamScheduleProps> = ({}) => {
   const [stopModalIsOpened, stopModalOpenModal, stopModalCloseModal] = useModal();
   const [confirmModalIsOpened, confirmModalOpenModal, confirmModalCloseModal] = useModal();
 
+  const workspaceId = useMemo(() => router.query.workspaceId, [router]);
   const workspaceName = useMemo(() => router.query.workspaceName ? router.query.workspaceName : '일정 생성하기', [router]);
   
   const [name, setName] = useState('');
   const onChangeName = useCallback((e: ChangeEvent<HTMLInputElement>) => {setName(e.target.value)}, []);
   
-  const [memberList, setMemberList] = useState([{nickName: '188 코딩클럽', userId: 10}, {nickName: '188 밴드', userId: 11}, {nickName: '김성훈의 마지막 잎새', userId: 13}]);
+  
+  const {data: memberList} = useQuery({
+    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USER_BY_WID],
+    queryFn: async () => {
+      const result = await getWorkspaceUserByWId({workspaceId: workspaceId});
+      return result.users.map(u => ({userId: u.userId, nickName: u.nickName}));
+    },
+    initialData: [],
+    enabled: !!workspaceId,
+  });
+  // const [memberList, setMemberList] = useState([{nickName: '188 코딩클럽', userId: 10}, {nickName: '188 밴드', userId: 11}, {nickName: '김성훈의 마지막 잎새', userId: 13}]);
   const [selectedMemberList, setSelectedMemberList] = useState<{nickName: string; userId: number}[]>([]);
   const onSelectMember = useCallback(
     (user: {nickName: string; userId: number}) => () => {
@@ -102,11 +115,24 @@ const AddTeamSchedule: NextPageWithLayout<AddTeamScheduleProps> = ({}) => {
     }
     confirmModalOpenModal();
   }, [name, selectedMemberList, selectedDate, contentHtml, selectedStatus, confirmModalOpenModal]);
+  
+  const {mutate: _createSchedule} = useMutation(createSchedule, {
+    onSuccess: (data, valiable) => {
+      router.push(`/workspace/${valiable.workspaceId}/${data.scheduleId}`);
+    },
+  });
   const onClickSubmitconfirm = useCallback(() => {
-    // TODO API 연동
-    // name, selectedMemberList, selectedDate, contentHtml, selectedStatus
+    _createSchedule({
+      workspaceId,
+      name,
+      users: selectedMemberList.map(user => user.userId),
+      startDate: dayjs(selectedDate.start).format('YYYYMMDD:HH:mm').toString(),
+      endDate: dayjs(selectedDate.end).format('YYYYMMDD:HH:mm').toString(),
+      state : selectedStatus,
+      content : contentHtml,
+    });
     confirmModalCloseModal();
-  }, [name, selectedMemberList, selectedDate, contentHtml, selectedStatus, confirmModalCloseModal]);
+  }, [workspaceId, name, selectedMemberList, selectedDate, contentHtml, selectedStatus, confirmModalCloseModal]);
   
   return (
     <Container>

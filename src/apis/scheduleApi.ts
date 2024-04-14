@@ -17,7 +17,7 @@ export async function getScheduleDetailByScheduleId({scheduleId}: {scheduleId: n
   }
 }
 
-export async function createSchedule({workspaceId, ...params}: {workspaceId: number} & SchedulePostDto) {
+export async function createSchedule(params: {workspaceId: number} & SchedulePostDto) {
   try {
     const {data} = await axiosInstance.post(`${prefix}`, params);
     return data;

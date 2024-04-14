@@ -36,7 +36,7 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
   const { data: {userId, workspaces: workspaceList} } = useQuery([USER_QUERY_KEY.GET_MY_WORKSPACE_LIST], getMyWorkspaceList, {
     initialData: [],
   });
-  
+
   const [stopModalIsOpened, stopModalOpenModal, stopModalCloseModal] = useModal();
   const [confirmModalIsOpened, confirmModalOpenModal, confirmModalCloseModal] = useModal();
   
@@ -45,13 +45,6 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
 
   const [selectedWorkspace, setSelectedWorkspace] = useState<{workspaceName: string; workspaceId: number} | null>(null);
   
-  const {data: memberList} = useQuery({
-    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USER_BY_WID],
-    queryFn: () => getWorkspaceUserByWId({workspaceId: selectedWorkspace.workspaceId}),
-    initialData: [], //TODO 본인이 조회 안됨.
-  });
-  
-  // const [memberList, setMemberList] = useState([{nickName: '188 코딩클럽', userId: 10}, {nickName: '188 밴드', userId: 11}, {nickName: '김성훈의 마지막 잎새', userId: 13}]);
   const [selectedMemberList, setSelectedMemberList] = useState<{nickName: string; userId: number}[]>([]);
   const onSelectMember = useCallback(
     (user: {nickName: string; userId: number}) => () => {
@@ -63,6 +56,16 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
       const updatedList = selectedMemberList.filter(user => user.userId !== userId);
       setSelectedMemberList(updatedList);
   }, [selectedMemberList]);
+  
+  const {data: memberList} = useQuery({
+    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USER_BY_WID],
+    queryFn: async () => {
+      const result = await getWorkspaceUserByWId({workspaceId: selectedWorkspace.workspaceId});
+      return result.users.map(u => ({userId: u.userId, nickName: u.nickName}));
+    },
+    initialData: [],
+    enabled: !!selectedWorkspace,
+  });
   
   const [selectedDate, setSelectedDate] = useState({start: '', end: ''});
   const onChangeStartDate = useCallback((date) => {
@@ -123,15 +126,15 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
   const {mutate: _createSchedule} = useMutation(createSchedule, {
     onSuccess: (data, valiable) => {
       router.push(`/workspace/${valiable.workspaceId}/${data.scheduleId}`);
-    }
+    },
   });
   const onClickSubmitconfirm = useCallback(() => {
     _createSchedule({
       workspaceId: selectedWorkspace.workspaceId,
       name,
-      users: selectedMemberList,
-      startDate: dayjs(selectedDate.start).format('YYYYMMDD HH:mm').toString(),
-      endDate: dayjs(selectedDate.end).format('YYYYMMDD HH:mm').toString(),
+      users: selectedMemberList.map(user => user.userId),
+      startDate: dayjs(selectedDate.start).format('YYYYMMDD:HH:mm').toString(),
+      endDate: dayjs(selectedDate.end).format('YYYYMMDD:HH:mm').toString(),
       state : selectedStatus,
       content : contentHtml,
     });
