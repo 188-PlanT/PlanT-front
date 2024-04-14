@@ -1,4 +1,4 @@
-import {useState, useCallback} from 'react';
+import {useState, useCallback, useMemo} from 'react';
 import {transrateAuthority} from '@utils/Utils';
 import styled from '@emotion/styled';
 import AppColor from '@styles/AppColor';
@@ -7,13 +7,16 @@ import DropDownIcon from '@public/image/dropdown_icon.png';
 import AuthorityChangeConfirmModal from '@components/modals/AuthorityChangeConfirmModal';
 import useModal from '@hooks/useModal';
 import { toast } from 'react-toastify';
+import { useMutation, QueryClient } from '@tanstack/react-query';
+import { WORKSPACE_QUERY_KEY, changeWorkspaceUserAuthority } from '@apis/workspaceApi';
 
 interface AuthorityDropDownProps {
+  workspaceId: number;
   authority: string | 'ADMIN' | 'USER' | 'PENDING';
   userId: number;
 }
 
-export default function AuthorityDropDown({authority, userId}: AuthorityDropDownProps) {
+export default function AuthorityDropDown({workspaceId, authority, userId}: AuthorityDropDownProps) {
   const [isDropDownOpened, setIsDropDownOpened] = useState(false);
   
   const [isModalOpened, openModal, closeModal] = useModal();
@@ -39,15 +42,24 @@ export default function AuthorityDropDown({authority, userId}: AuthorityDropDown
       openModal();
     }, [openModal, authority]);
   
+  const queryClient = useMemo(() => new QueryClient(), []);
+  
+  const {mutate: _changeWorkspaceUserAuthority} = useMutation(changeWorkspaceUserAuthority, {
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({querykey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId], refetchType: 'inactive'});
+      console.log(res);
+    },
+  });
+  
   const onClickChange = useCallback(() => {
     const params = {
+      workspaceId,
       userId,
       authority: selectedAuthority,
     };
-    console.log(params, '권한 변경');
-    //TODO API 연동
+    _changeWorkspaceUserAuthority(params);
     closeModal();
-  }, [userId, selectedAuthority, closeModal]);
+  }, [workspaceId, userId, selectedAuthority, closeModal]);
   
   return (
     <div style={{position: 'relative', cursor: 'pointer'}} onClick={onClickDropDown}>

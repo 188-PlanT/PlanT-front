@@ -11,7 +11,7 @@ export const WORKSPACE_QUERY_KEY = {
   GET_WORKSPACE_SCHEDULES_BY_DATE: 'getWorkspaceSchedulesByDate',
 };
 
-export async function createWorkspace(params: {users: number[]; name: string; profile?: string}) {
+export async function createWorkspace(params: {users: number[]; name: string; profile: string}) {
   try {
     const {data} = await axiosInstance.post(`${prefix}`, params);
     return data;
@@ -106,6 +106,29 @@ export async function deleteWorkspaceUser(
     const {
       data,
     } = await axiosInstance.delete(`${prefix}/${workspaceId}/users/${userId}`);
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+
+export async function changeWorkspaceUserAuthority({workspaceId, userId, authority}: {workspaceId: number; userId: number; authority: 'ADMIN' | 'USER'}) {
+  try {
+    const {
+      data,
+    } = await axiosInstance.put(`${prefix}/${workspaceId}/users/${userId}`, {authority});
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function updateWorkspaceInfo({workspaceId, name, profile}: {workspaceId: number; name: string; profile?: string}) {
+  try {
+    const {
+      data,
+    } = await axiosInstance.put(`${prefix}/${workspaceId}`, {name, profile});
     return data;
   } catch (error) {
     throw error;

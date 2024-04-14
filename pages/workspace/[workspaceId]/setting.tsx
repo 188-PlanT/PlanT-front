@@ -1,7 +1,7 @@
 import CommonLayout from '@components/layouts/CommonLayout';
 import styled from '@emotion/styled';
 import PageName from '@components/PageName';
-import ButtonShort from '@components/atoms/ShortButton';
+import ShortButton from '@components/atoms/ShortButton';
 import TextInput from '@components/atoms/TextInput';
 import AuthorityDropDown from '@components/AuthorityDropDown';
 import { NextPageWithLayout } from 'pages/_app';
@@ -19,7 +19,7 @@ import WorkspaceWithdrawConfirmModal from '@components/modals/WorkspaceWithdrawC
 import KickMemberConfirmModal from '@components/modals/KickMemberConfirmModal';
 import { USER_QUERY_KEY, searchUser } from '@apis/userApi';
 import { uploadImage } from '@apis/fileApi';
-import { WORKSPACE_QUERY_KEY, changeWorkspace, getWorkspaceUserByWId, addWorkspaceUser, deleteWorkspaceUser, deleteWorkspace } from '@apis/workspaceApi';
+import { WORKSPACE_QUERY_KEY, changeWorkspace, getWorkspaceUserByWId, updateWorkspaceInfo, addWorkspaceUser, deleteWorkspaceUser, deleteWorkspace } from '@apis/workspaceApi';
 import { useQuery, useMutation, QueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { useAppSelector } from '@store/configStore';
@@ -57,7 +57,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
       name: Yup.string().max(30, '30자 이내 팀 이름을 입력해 주세요.').required('30자 이내 팀 이름을 입력해 주세요.'),
     }),
   });
-  
+
   useEffect(() => {
     if (workspaceData.workspaceName) {
       setFieldValue('name', workspaceData.workspaceName)
@@ -88,7 +88,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
       queryClient.invalidateQueries({querykey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId], refetchType: 'inactive'});
       console.log(res);
     },
-  })
+  });
   const onClickAddUser = useCallback(
     (user) => async () => {
       setSearchKeyword('');
@@ -150,7 +150,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
   const {mutate: _deleteWorkspace} = useMutation(deleteWorkspace, {
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: [USER_QUERY_KEY.GET_MY_WORKSPACE_LIST]});
-      router.push('/workspace/personal')
+      router.push('/workspace/personal');
     },
   });
   const onClickDelete = useCallback(() => {
@@ -158,7 +158,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
     deleteModalClose();
     router.push('/workspace/personal');
   }, [deleteModalClose, router, _deleteWorkspace, workspaceId]);
-  
+
   const [profile, setProfile] = useState('');
   useEffect(() => {
     if (workspaceData?.profile) {
@@ -187,6 +187,20 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
     }
   }, []);
   
+  
+  const {mutate: _updateWorkspaceInfo} = useMutation(updateWorkspaceInfo, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId]});
+      toast.success('워크스페이스 정보가 성공적으로 변경되었습니다.');
+    },
+    onError: () => {
+      toast.error('워크스페이스 정보 수정에 실패하였습니다. 잠시 후 다시 시도해 주세요.');
+    },
+  });
+  const updateWorkspace = useCallback(() => {
+    _updateWorkspaceInfo({workspaceId, name: values.name, profile}); //TODO 나중에 이미지 업로드 연동 후 profile 추가 가능
+  }, [workspaceId, values, profile]);
+  
   return (
     <Container style={{width: '100%'}}>
       <PageName pageName={workspaceData.workspaceName} additionalName='플랜팀 설정' />
@@ -197,7 +211,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
               <Image width={112} height={112} style={{borderRadius: '100%'}} src={profile} alt='프로필 이미지' />
             ) : workspaceData.workspaceName[0]}
           </Circle>
-          <ButtonShort
+          <ShortButton
             buttonStyle={{
               width: '96px',
               height: '36px',
@@ -266,7 +280,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
                     {myUserId !== userId ? (
                       <>
                         <td style={{width: '14%', textAlign: 'center', padding: '10px 0px', color: AppColor.text.lightblack}}>
-                          <AuthorityDropDown authority={authority} userId={userId} />
+                          <AuthorityDropDown workspaceId={workspaceId} authority={authority} userId={userId} />
                         </td>
                         <td style={{width: '20%', textAlign: 'center'}}>
                           <KickButton onClick={onClickKickUser(userId)} >
@@ -284,7 +298,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
         
         
         <div style={{display: 'flex', marginTop: '20px', columnGap: '120px', justifyContent: 'center'}}>
-          <ButtonShort
+          <ShortButton
             buttonStyle={{
               width: '100px',
               height: '38px',
@@ -296,7 +310,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
             label='팀 나가기'
             onClick={withdrawModalOpen}
           />
-          <ButtonShort
+          <ShortButton
             buttonStyle={{
               color: AppColor.text.error,
               width: '100px',
@@ -309,6 +323,19 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
             }}
             label='팀 삭제'
             onClick={deleteModalOpen}
+          />
+          <ShortButton
+            buttonStyle={{
+              width: '100px',
+              height: '38px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              ...((touched.name && !errors.name) && {backgroundColor: AppColor.main}),
+            }}
+            label='정보 수정'
+            disabled={!touched.name || !!errors.name}
+            onClick={updateWorkspace}
           />
         </div>
       </div>
