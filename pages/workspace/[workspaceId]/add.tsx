@@ -21,6 +21,8 @@ import {useRouter} from 'next/router';
 import useModal from '@hooks/useModal';
 import ScheduleCreateStopModal from '@components/modals/ScheduleCreateStopModal';
 import ScheduleCreateConfirmModal from '@components/modals/ScheduleCreateConfirmModal';
+import {useMutation} from '@tanstack/react-query';
+import { SCHEDULE_QUERY_KEY, createSchedule } from '@apis/scheduleApi';
 import {toast} from 'react-toastify';
 
 interface AddTeamScheduleProps {}

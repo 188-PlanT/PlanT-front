@@ -21,14 +21,21 @@ import {useRouter} from 'next/router';
 import useModal from '@hooks/useModal';
 import ScheduleCreateStopModal from '@components/modals/ScheduleCreateStopModal';
 import ScheduleCreateConfirmModal from '@components/modals/ScheduleCreateConfirmModal';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { SCHEDULE_QUERY_KEY, createSchedule } from '@apis/scheduleApi';
+import { WORKSPACE_QUERY_KEY, getWorkspaceUserByWId } from '@apis/workspaceApi';
+import { USER_QUERY_KEY, getMyWorkspaceList } from '@apis/userApi';
 import {toast} from 'react-toastify';
+import dayjs from 'dayjs';
 
 interface AddPersonalScheduleProps {}
 
 const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) => {
   const router = useRouter();
   
-  // const workspaceName = '김성훈의 마지막 잎새'; //TEST 용
+  const { data: {userId, workspaces: workspaceList} } = useQuery([USER_QUERY_KEY.GET_MY_WORKSPACE_LIST], getMyWorkspaceList, {
+    initialData: [],
+  });
   
   const [stopModalIsOpened, stopModalOpenModal, stopModalCloseModal] = useModal();
   const [confirmModalIsOpened, confirmModalOpenModal, confirmModalCloseModal] = useModal();
@@ -38,7 +45,13 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
 
   const [selectedWorkspace, setSelectedWorkspace] = useState<{workspaceName: string; workspaceId: number} | null>(null);
   
-  const [memberList, setMemberList] = useState([{nickName: '188 코딩클럽', userId: 10}, {nickName: '188 밴드', userId: 11}, {nickName: '김성훈의 마지막 잎새', userId: 13}]);
+  const {data: memberList} = useQuery({
+    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USER_BY_WID],
+    queryFn: () => getWorkspaceUserByWId({workspaceId: selectedWorkspace.workspaceId}),
+    initialData: [], //TODO 본인이 조회 안됨.
+  });
+  
+  // const [memberList, setMemberList] = useState([{nickName: '188 코딩클럽', userId: 10}, {nickName: '188 밴드', userId: 11}, {nickName: '김성훈의 마지막 잎새', userId: 13}]);
   const [selectedMemberList, setSelectedMemberList] = useState<{nickName: string; userId: number}[]>([]);
   const onSelectMember = useCallback(
     (user: {nickName: string; userId: number}) => () => {
@@ -106,11 +119,24 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
     }
     confirmModalOpenModal();
   }, [selectedWorkspace, name, selectedMemberList, selectedDate, contentHtml, selectedStatus, confirmModalOpenModal]);
+  
+  const {mutate: _createSchedule} = useMutation(createSchedule, {
+    onSuccess: (data, valiable) => {
+      router.push(`/workspace/${valiable.workspaceId}/${data.scheduleId}`);
+    }
+  });
   const onClickSubmitconfirm = useCallback(() => {
-    // TODO API 연동
-    // selectedWorkspace, name, selectedMemberList, selectedDate, contentHtml, selectedStatus
+    _createSchedule({
+      workspaceId: selectedWorkspace.workspaceId,
+      name,
+      users: selectedMemberList,
+      startDate: dayjs(selectedDate.start).format('YYYYMMDD HH:mm').toString(),
+      endDate: dayjs(selectedDate.end).format('YYYYMMDD HH:mm').toString(),
+      state : selectedStatus,
+      content : contentHtml,
+    });
     confirmModalCloseModal();
-  }, [selectedWorkspace, name, selectedMemberList, selectedDate, contentHtml, selectedStatus, confirmModalCloseModal]);
+  }, [selectedWorkspace, name, selectedMemberList, selectedDate, contentHtml, selectedStatus, confirmModalCloseModal, _createSchedule]);
   
   return (
     <Container>
@@ -129,7 +155,7 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
           <div style={{display: 'flex', alignItems: 'center', marginTop: '10px', columnGap: '16px'}}>
             <Image src={FolderIcon} alt='폴더 이모지' width={46} height={32} />
             <WorkspaceDropDown
-              workspaceList={[{workspaceName: '188 코딩클럽', workspaceId: 10}, {workspaceName: '188 밴드', workspaceId: 11}, {workspaceName: '김성훈의 마지막 잎새', workspaceId: 13},]}
+              workspaceList={workspaceList}
               value={selectedWorkspace}
               onChangeValue={(value) => () => setSelectedWorkspace(value)}
             />
