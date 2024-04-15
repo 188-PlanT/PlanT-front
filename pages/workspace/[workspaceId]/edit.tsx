@@ -15,27 +15,43 @@ import styled from '@emotion/styled';
 import AppColor from '@styles/AppColor';
 import Image from 'next/image';
 import FolderIcon from '@public/image/folder_icon.png';
-import {useState, useCallback, useMemo, useEffect, ChangeEvent} from 'react';
-import {ScheduleStatus, ScheduleStatusType} from '@customTypes/types';
+import { useState, useCallback, useMemo, useEffect, ChangeEvent } from 'react';
+import { ScheduleStatus, ScheduleStatusType } from '@customTypes/types';
 import {useRouter} from 'next/router';
 import qs from 'qs';
-import {formatDate} from '@utils/Utils';
+import { formatDate } from '@utils/Utils';
+import { toast } from 'react-toastify';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { SCHEDULE_QUERY_KEY, updateSchedule } from '@apis/scheduleApi';
+import { WORKSPACE_QUERY_KEY, getWorkspaceUserByWId } from '@apis/workspaceApi';
 
 interface EditTeamScheduleProps {}
 
 const EditTeamSchedule: NextPageWithLayout<EditTeamScheduleProps> = ({}) => {
   const router = useRouter();
   
+  const query = useMemo(() => qs.parse(router.query), [router]);
+  
+  const scheduleId = useMemo(() => router.query.scheduleId, [router]);
+  const workspaceId = useMemo(() => router.query.workspaceId, [router]);
   const workspaceName: string = useMemo(() => String(router.query.workspaceName), [router]);
   
   const [name, setName] = useState('');
   const onChangeName = useCallback((e: ChangeEvent<HTMLInputElement>) => {setName(e.target.value)}, []);
   
-  const [memberList, setMemberList] = useState([{nickName: '188 코딩클럽', userId: 10}, {nickName: '188 밴드', userId: 11}, {nickName: '김성훈의 마지막 잎새', userId: 13}]);
+  const {data: memberList} = useQuery({
+    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USER_BY_WID],
+    queryFn: async () => {
+      const result = await getWorkspaceUserByWId({workspaceId: workspaceId});
+      return result.users.map(u => ({userId: u.userId, nickName: u.nickName}));
+    },
+    initialData: [],
+    enabled: !!workspaceId,
+  });
   const [selectedMemberList, setSelectedMemberList] = useState<{nickName: string; userId: number}[]>([]);
   const onSelectMember = useCallback(
     (user: {nickName: string; userId: number}) => () => {
-      if (selectedMemberList.filter(u => u.userId === user.userId).length !== 0) return;
+      if (selectedMemberList.filter(u => +u.userId === +user.userId).length !== 0) return;
       setSelectedMemberList(prev => [...prev, user]);
     }, [selectedMemberList]);
   const onCancelMember = useCallback(
@@ -65,47 +81,48 @@ const EditTeamSchedule: NextPageWithLayout<EditTeamScheduleProps> = ({}) => {
   const [selectedStatus, setSelectedStatus] = useState<ScheduleStatusType>('TODO');
   
   useEffect(() => {
-    const data = qs.parse(String(router.query));
-    if (Object.keys(data).length === 0) return;
-    console.log(data);
-    
-    //TODO 워크스페이스의 모든 멤버 얻어와서 setMemberList();
-    
-    setName(data.name ? data.name as string : '');
-    setSelectedMemberList(data.users ? data.users as any : []);
+    if (Object.keys(query).length === 0) return;
+
+    setName(query.name ? query.name as string : '');
+    setSelectedMemberList(query.users ? query.users.map(u => ({...u, userId: +u.userId})) as any : []);
     setSelectedDate(
-      (data.startDate && data.endDate) ?
+      (query.startDate && query.endDate) ?
         {
-          start: new Date(formatDate(data.startDate as string, 'YYYY.MM.DD HH:mm')),
-          end: new Date(formatDate(data.endDate as string, 'YYYY.MM.DD HH:mm')),
+          start: new Date(formatDate(query.startDate as string, 'YYYY.MM.DD HH:mm')),
+          end: new Date(formatDate(query.endDate as string, 'YYYY.MM.DD HH:mm')),
         } : {
           start: '',
           end: '',
         }
     );
-    setContentHtml(data.content ? data.content as string : '');
-    setSelectedStatus(data.state ? data.state as ScheduleStatusType : 'TODO');
-  }, [router]);
+    setContentHtml(query.content ? query.content as string : '');
+    setSelectedStatus(query.state ? query.state as ScheduleStatusType : 'TODO');
+  }, [query]);
   
   const onClickCancel = useCallback(() => {
     router.back();
   }, [router]);
   
+  const {mutate: _updateSchedule} = useMutation(updateSchedule, {
+    onSuccess: () => {
+      toast.success('수정 완료');
+      router.push(`/workspace/${workspaceId}/${scheduleId}`);
+    },
+  });
   const onSubmitEdit = useCallback(() => {
-    const scheduleId = router.query.scheduleId;
     const params = {
+      scheduleId,
       name: name,
       users: selectedMemberList.map(u => u.userId),
-      startDate: formatDate(selectedDate.start, 'YYYY-MM-DD HH:mm'),
-      endDate: formatDate(selectedDate.end, 'YYYY-MM-DD HH:mm'),
+      startDate: formatDate(selectedDate.start, 'YYYYMMDD:HH:mm'),
+      endDate: formatDate(selectedDate.end, 'YYYYMMDD:HH:mm'),
       content: contentHtml,
       state: selectedStatus,
     };
-    
     console.log(params);
-    //TODO 구현
-  }, [router, name, selectedMemberList, selectedDate, contentHtml, selectedStatus]);
-
+    _updateSchedule(params);
+  }, [scheduleId, name, selectedMemberList, selectedDate, contentHtml, selectedStatus]);
+  
   return (
     <Container>
       <PageName pageName={workspaceName} additionalName={name} />
@@ -143,7 +160,7 @@ const EditTeamSchedule: NextPageWithLayout<EditTeamScheduleProps> = ({}) => {
               shouldCloseOnSelect
               showIcon
               placeholderText="시작일"
-              dateFormat="YYYY/MM/dd hh:mm"
+              dateFormat="YYYY/MM/dd HH:mm"
               selected={selectedDate.start}
               onChange={onChangeStartDate}
               showTimeInput
@@ -154,7 +171,7 @@ const EditTeamSchedule: NextPageWithLayout<EditTeamScheduleProps> = ({}) => {
               shouldCloseOnSelect
               showIcon
               placeholderText="종료일"
-              dateFormat="YYYY/MM/dd hh:mm"
+              dateFormat="YYYY/MM/dd HH:mm"
               selected={selectedDate.end}
               onChange={onChangeEndDate}
               showTimeInput

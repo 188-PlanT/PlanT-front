@@ -12,8 +12,9 @@ import { useRouter } from 'next/router';
 import styled from '@emotion/styled';
 import { formatDate } from '@utils/Utils';
 import {ScheduleStatus, ScheduleStatusType } from '@customTypes/types';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, QueryClient } from '@tanstack/react-query';
 import { SCHEDULE_QUERY_KEY, getScheduleDetailByScheduleId, updateScheduleState, deleteSchedule } from '@apis/scheduleApi';
+import { createComment } from '@apis/commentApi';
 import qs from 'qs';
 import { toast } from 'react-toastify';
 
@@ -22,6 +23,8 @@ interface TeamScheduleProps {}
 const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
   const router = useRouter();
 
+  const queryClient = useMemo(() => new QueryClient(), []);
+  
   const {scheduleId, workspaceId} = useMemo(() => router.query, [router]);
   
   const {data} = useQuery({
@@ -54,14 +57,21 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
   }, [data]);
   
   const [comment, setComment] = useState('');
+  const {mutate: _createComment} = useMutation(createComment, {
+    onSuccess: () => {
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({querykey: [SCHEDULE_QUERY_KEY.GET_SCHEDULE_DETAIL_BY_SID, scheduleId]});
+      setComment('');
+    },
+  });
   const onChangeComment = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setComment(e.target.value);
   }, []);
   const onSubmitComment = useCallback(() => {
-    //TODO API 연결
-    console.log(comment, '제출')
-    setComment('');
-  }, [comment]);
+    console.log(comment, '제출');
+    _createComment({scheduleId, content: comment});
+  }, [scheduleId, comment]);
   
   const {mutate: _updateScheduleState} = useMutation(updateScheduleState, {
     onSuccess: (data, valiable) => {

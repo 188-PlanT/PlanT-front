@@ -171,7 +171,7 @@ const AddTeamSchedule: NextPageWithLayout<AddTeamScheduleProps> = ({}) => {
               shouldCloseOnSelect
               showIcon
               placeholderText="시작일"
-              dateFormat="YYYY/MM/dd hh:mm"
+              dateFormat="YYYY/MM/dd HH:mm"
               selected={selectedDate.start}
               onChange={onChangeStartDate}
               showTimeInput
@@ -182,7 +182,7 @@ const AddTeamSchedule: NextPageWithLayout<AddTeamScheduleProps> = ({}) => {
               shouldCloseOnSelect
               showIcon
               placeholderText="종료일"
-              dateFormat="YYYY/MM/dd hh:mm"
+              dateFormat="YYYY/MM/dd HH:mm"
               selected={selectedDate.end}
               onChange={onChangeEndDate}
               showTimeInput

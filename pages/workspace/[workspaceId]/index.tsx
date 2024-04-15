@@ -15,6 +15,8 @@ import { useRouter } from 'next/router';
 import { useCallback, useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { toast } from 'react-toastify';
 import { makeCalendarArray } from '@utils/Utils';
 import { ScheduleStatusType } from '@customTypes/types';
@@ -23,6 +25,9 @@ import { USER_QUERY_KEY } from '@apis/userApi';
 import { WORKSPACE_QUERY_KEY, deleteWorkspaceUser, getWorkspaceCalendarByMonth, getWorkspaceSchedulesByDate } from '@apis/workspaceApi';
 import { useAppSelector } from '@store/configStore';
 import { selectUserId } from '@store/slices/user';
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
 interface TeamWorkspaceProps {}
 
@@ -48,13 +53,14 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
 
   const calendarData = useMemo(() => {
     const calendarArray = makeCalendarArray(selectedYear, selectedMonth);
-    //TODO 수정 필요. 각 날짜와 그에 맞는 스케쥴 필터링 해서 매칭시켜주기
-    const schedules = scheduleData.map(s => ({...s, date: ''}));
     return calendarArray.map(
       d => (
         {
           date: d,
-          scheduleData: scheduleData.schedules,
+          scheduleData: scheduleData.schedules.filter(
+            schedule => 
+              dayjs(d).isSameOrAfter(schedule.startDate, 'date') && dayjs(d).isSameOrBefore(schedule.endDate, 'date')
+          )
         }
       )
     );
