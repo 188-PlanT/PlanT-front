@@ -23,7 +23,7 @@ import { WORKSPACE_QUERY_KEY, changeWorkspace, getWorkspaceUserByWId, updateWork
 import { useQuery, useMutation, QueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { useAppSelector } from '@store/configStore';
-import {selectUserId} from '@store/slices/user';
+import { selectUserId } from '@store/slices/user';
 
 interface WorkspaceSettingProps {}
 

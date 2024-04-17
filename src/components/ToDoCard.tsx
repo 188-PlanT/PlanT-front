@@ -36,10 +36,10 @@ export default function ToDoCard({
   
   return (
     <Link href={`/workspace/${workspaceId}/${scheduleId}`}>
-      <Container>
+      <Container style={status !== ScheduleStatus[3] ? {backgroundColor: AppColor.background.lightwhite} : {backgroundColor: AppColor.background.lightgray}}>
         <div style={{display: 'flex', height: '100%', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 10px'}}>
           <WorkspaceName>{workspaceName}</WorkspaceName>
-          <ScheduleName>{scheduleName}</ScheduleName>
+          <ScheduleName style={{...(status === ScheduleStatus[3] && {textDecoration: 'line-through'})}}>{scheduleName}</ScheduleName>
         </div>
         <div style={{display: 'flex', flexDirection: 'column', rowGap: '10px'}}>
           {statusArray.map((v, i) => <Status key={i} status={ScheduleStatus[v]} />)}
@@ -55,17 +55,16 @@ const Container = styled.div`
   padding: 20px;
   border-radius: 10px;
   box-shadow: rgb(0, 0, 0, 0.15) 3px 4px 18px 1px;
-  background-color: ${AppColor.background.lightwhite};
   display: flex;
   column-gap: 12px;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-`
+`;
 
 const WorkspaceName = styled.div`
   font-size: 16px;
-`
+`;
 
 const ScheduleName = styled.div`
   font-size: 20px;
@@ -78,9 +77,9 @@ const ScheduleName = styled.div`
   display: -webkit-box;
    -webkit-line-clamp: 3;
    -webkit-box-orient: vertical;
-`
+`;
 
 const EndDate = styled.div`
   font-size: 14px;
   font-weight: 500;
-`
+`;

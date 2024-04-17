@@ -17,12 +17,16 @@ import { SCHEDULE_QUERY_KEY, getScheduleDetailByScheduleId, updateScheduleState,
 import { createComment } from '@apis/commentApi';
 import qs from 'qs';
 import { toast } from 'react-toastify';
+import { useAppSelector } from '@store/configStore';
+import { selectUserId } from '@store/slices/user';
 
 interface TeamScheduleProps {}
 
 const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
   const router = useRouter();
 
+  const myUserId = useAppSelector(selectUserId);
+  
   const queryClient = useMemo(() => new QueryClient(), []);
   
   const {scheduleId, workspaceId} = useMemo(() => router.query, [router]);
@@ -69,7 +73,6 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
     setComment(e.target.value);
   }, []);
   const onSubmitComment = useCallback(() => {
-    console.log(comment, '제출');
     _createComment({scheduleId, content: comment});
   }, [scheduleId, comment]);
   
@@ -155,10 +158,12 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
               <div style={{alignSelf: 'flex-end'}}>까지</div>
             </div>
             
-            <CommentContainer>
-              {data.chatList.map(c => <ScheduleComment key={c.chatId} chat={c} />)}
+            <div style={{padding: '10px 0', margin: '0 auto', width: '86%'}}>
+              <CommentContainer>
+                {data.chatList.map(c => <ScheduleComment key={c.chatId} scheduleId={scheduleId} chat={c} isMine={myUserId === c.userId} />)}
+              </CommentContainer>
               <TextInput
-                containerStyle={{backgroundColor: 'transparent', height: '30px', border: 'none', marginLeft: '-10px'}}
+                containerStyle={{backgroundColor: 'transparent', height: '30px', border: 'none', marginTop: '10px', marginLeft: '-10px', position: 'sticky', bottom: '0px'}}
                 style={{fontSize: '12px', backgroundColor: 'transparent'}}
                 placeholder="댓글쓰기"
                 value={comment}
@@ -172,7 +177,7 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
                   </CommentEnterButton>
                 }
               />
-            </CommentContainer>
+            </div>
             
             <div style={{minHeight: '46vh', marginBottom: '10px'}}>
               <div dangerouslySetInnerHTML={{__html: data.content}}></div>
@@ -235,14 +240,12 @@ const Date = styled.div`
 `;
 
 const CommentContainer = styled.div`
-  padding: 10px 0;
-  margin: 0 auto;
-  width: 86%;
   border: 1px solid ${AppColor.border.gray};
   border-left: none;
   border-right: none;
   color: ${AppColor.text.secondary};
-  max-height: 240px; 
+  max-height: 260px;
+  overflow-y: scroll;
 `;
 
 const CommentEnterButton = styled.div`

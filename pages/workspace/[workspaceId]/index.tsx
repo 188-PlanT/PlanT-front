@@ -49,6 +49,7 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
     queryFn: () => getWorkspaceCalendarByMonth({workspaceId, month}),
     enabled: !!(selectedYear && selectedMonth && workspaceId),
     initialData: {workspaceName: '', role: 'USER', schedules: []},
+    refetchOnWindowFocus: 'always',
   });
 
   const calendarData = useMemo(() => {

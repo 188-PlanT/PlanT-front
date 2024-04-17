@@ -2,8 +2,10 @@ import styled from '@emotion/styled';
 import AppColor from '@styles/AppColor';
 import Head from 'next/head';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import Logo from '@public/image/logo.png';
-import { ReactNode } from 'react';
+import useMe from '@hooks/useMe';
+import { ReactNode, useEffect } from 'react';
 
 interface AuthLayoutProps {
   title?: string;
@@ -12,6 +14,16 @@ interface AuthLayoutProps {
 }
 
 export default function AuthLayout({ children, title = '', description }: AuthLayoutProps) {
+  const router = useRouter();
+  
+  const { isLoggedIn } = useMe();
+  
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.push('/workspace/personal');
+    }
+  }, [isLoggedIn]);
+  
   return (
     <>
       <Head>
