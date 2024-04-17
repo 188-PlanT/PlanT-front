@@ -20,7 +20,7 @@ import KickMemberConfirmModal from '@components/modals/KickMemberConfirmModal';
 import { USER_QUERY_KEY, searchUser } from '@apis/userApi';
 import { uploadImage } from '@apis/fileApi';
 import { WORKSPACE_QUERY_KEY, changeWorkspace, getWorkspaceUserByWId, updateWorkspaceInfo, addWorkspaceUser, deleteWorkspaceUser, deleteWorkspace } from '@apis/workspaceApi';
-import { useQuery, useMutation, QueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { useAppSelector } from '@store/configStore';
 import { selectUserId } from '@store/slices/user';
@@ -82,7 +82,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
     setSearchKeyword(e.target.value);
   }, []);
   
-  const queryClient = useMemo(() => new QueryClient(), []);
+  const queryClient = useQueryClient();
   const {mutate: _addWorkspaceUser} = useMutation(addWorkspaceUser, {
     onSuccess: (res) => {
       queryClient.invalidateQueries({querykey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId], refetchType: 'inactive'});

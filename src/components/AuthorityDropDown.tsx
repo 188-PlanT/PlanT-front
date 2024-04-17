@@ -7,7 +7,7 @@ import DropDownIcon from '@public/image/dropdown_icon.png';
 import AuthorityChangeConfirmModal from '@components/modals/AuthorityChangeConfirmModal';
 import useModal from '@hooks/useModal';
 import { toast } from 'react-toastify';
-import { useMutation, QueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { WORKSPACE_QUERY_KEY, changeWorkspaceUserAuthority } from '@apis/workspaceApi';
 
 interface AuthorityDropDownProps {
@@ -42,7 +42,7 @@ export default function AuthorityDropDown({workspaceId, authority, userId}: Auth
       openModal();
     }, [openModal, authority]);
   
-  const queryClient = useMemo(() => new QueryClient(), []);
+  const queryClient = useQueryClient();
   
   const {mutate: _changeWorkspaceUserAuthority} = useMutation(changeWorkspaceUserAuthority, {
     onSuccess: (res) => {

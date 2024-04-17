@@ -16,7 +16,7 @@ import { transrateAuthority } from '@utils/Utils';
 import { USER_QUERY_KEY, searchUser } from '@apis/userApi';
 import { uploadImage } from '@apis/fileApi';
 import { createWorkspace } from '@apis/workspaceApi';
-import { useQuery, useMutation, QueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 
 interface CreateWorkspaceProps {}
@@ -90,7 +90,7 @@ const CreateWorkspace: NextPageWithLayout<CreateWorkspaceProps> = ({}) => {
       setCandidateUserList(updatedList);
     }, [candidateUserList]);
   
-  const queryClient = useMemo(() => new QueryClient(), []);
+  const queryClient = useQueryClient();
   const { mutate: _createWorkspace } = useMutation(createWorkspace, {
     onSuccess: (res) => {
       queryClient.invalidateQueries({querykey: [USER_QUERY_KEY.GET_MY_WORKSPACE_LIST]});

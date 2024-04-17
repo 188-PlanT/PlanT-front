@@ -20,7 +20,7 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { toast } from 'react-toastify';
 import { makeCalendarArray } from '@utils/Utils';
 import { ScheduleStatusType } from '@customTypes/types';
-import { useQuery, useMutation, QueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { USER_QUERY_KEY } from '@apis/userApi';
 import { WORKSPACE_QUERY_KEY, deleteWorkspaceUser, getWorkspaceCalendarByMonth, getWorkspaceSchedulesByDate } from '@apis/workspaceApi';
 import { useAppSelector } from '@store/configStore';
@@ -99,7 +99,7 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
     setSelectedDate(_date);
   }, []);
   
-  const queryClient = useMemo(() => new QueryClient(), []);
+  const queryClient = useQueryClient();
   
   const {mutate: _deleteWorkspaceUser} = useMutation(deleteWorkspaceUser, {
     onSuccess: (res) => {

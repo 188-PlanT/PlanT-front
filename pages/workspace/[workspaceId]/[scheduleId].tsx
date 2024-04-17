@@ -12,7 +12,7 @@ import { useRouter } from 'next/router';
 import styled from '@emotion/styled';
 import { formatDate } from '@utils/Utils';
 import {ScheduleStatus, ScheduleStatusType } from '@customTypes/types';
-import { useMutation, useQuery, QueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { SCHEDULE_QUERY_KEY, getScheduleDetailByScheduleId, updateScheduleState, deleteSchedule } from '@apis/scheduleApi';
 import { createComment } from '@apis/commentApi';
 import qs from 'qs';
@@ -27,7 +27,7 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
 
   const myUserId = useAppSelector(selectUserId);
   
-  const queryClient = useMemo(() => new QueryClient(), []);
+  const queryClient = useQueryClient();
   
   const {scheduleId, workspaceId} = useMemo(() => router.query, [router]);
   

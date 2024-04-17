@@ -2,7 +2,7 @@ import {formatDate} from '@utils/Utils';
 import AppColor from '@styles/AppColor';
 import styled from '@emotion/styled';
 import Image from 'next/image';
-import { useMutation, QueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState, useEffect, useCallback, ChangeEvent } from 'react';
 import useModal from '@hooks/useModal';
 import TextInput from '@components/atoms/TextInput';
@@ -21,7 +21,7 @@ interface ScheduleCommentProps {
 export default function ScheduleComment({scheduleId, chat, isMine = false}: ScheduleCommentProps) {
   const [isOpened, openModal, closeModal] = useModal();
   
-  const queryClient = useMemo(() => new QueryClient(), []);
+  const queryClient = useQueryClient();
   
   const formattedDate = useMemo(() => {
     return formatDate(chat.createDate, 'YYYY년 MM월 DD일 A hh:mm');
