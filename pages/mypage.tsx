@@ -29,9 +29,7 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
 
   const [checked, setChecked] = useState({ nickName: false });
   
-  const {mutate: _changeMyInfo} = useMutation(changeMyInfo, {
-    onSuccess: () => {},
-  });
+  const {mutate: _changeMyInfo} = useMutation(changeMyInfo);
   
   const { values, errors, touched, handleSubmit, handleChange, handleBlur, setFieldError, setFieldValue } = useFormik({
     initialValues: {
@@ -82,22 +80,23 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
     }
   } ,[myInfo, setFieldValue]);
   
+  const {mutate: _checkNickname} = useMutation(checkNickname, {
+    onSuccess: (available) => {
+      if (available) {
+          toast.success('사용 가능한 닉네임입니다.');
+          setChecked({nickName: true});
+        } else {
+          toast.error('사용할 수 없는 닉네임입니다.');
+          setFieldError('nickname', '이미 사용 중인 닉네임입니다.')
+        }
+    },
+  });
   const onCheckNickName = useCallback(async () => {
     if (!values.nickname) {
       toast.error('닉네임을 입력해 주세요.');
       return;
     }
-    await checkNickname({nickName: values.nickname})
-      .then((available) => {
-        if (available) {
-          toast.success('사용 가능한 닉네임입니다.');
-          setChecked({nickName: true});
-        } else {
-          toast.error('사용할 수 없는 닉네임입니다.');
-          setFieldError('nickname', '사용할 수 없는 닉네임입니다.')
-        }
-      })
-      .catch((error) => console.error(error));
+    _checkNickname({nickName: values.nickname});
   }, [values]);
   
   return (

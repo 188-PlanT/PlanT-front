@@ -26,6 +26,7 @@ export default function useMe() {
       setIsLogedIn(false);
       router.push('/auth/login');
     },
+    enabled: !router.pathname.includes('/auth/'),
     retry: false,
     initialData: null,
   });

@@ -21,6 +21,8 @@ interface SignUpProps {}
 
 const SignUp: NextPageWithLayout<SignUpProps> = ({}) => {
   const router = useRouter();
+  
+  const [step, setStep] = useState(1); //TODO 1로 원복하기
 
   const [checked, setChecked] = useState({ email: false });
 
@@ -52,12 +54,13 @@ const SignUp: NextPageWithLayout<SignUpProps> = ({}) => {
         toast.error('이메일 중복 체크를 진행해 주세요');
         return;
       }
-      const params = {
-        email: values.email,
-        password: values.password,
-      };
+      setStep(2);
+      // const params = {
+      //   email: values.email,
+      //   password: values.password,
+      // };
       //TODO 인증 페이지로 데이터 넘기고 거기서 회원가입 요청
-      _signup(params);
+      // _signup(params);
     },
   });
 
@@ -90,105 +93,130 @@ const SignUp: NextPageWithLayout<SignUpProps> = ({}) => {
 
   return (
     <Container>
-      <h1 style={{ color: AppColor.text.signature, fontSize: '50px', margin: '0 0 32px' }}>회원가입</h1>
-      <Form onSubmit={handleSubmit}>
-        <div style={{ display: 'flex', position: 'relative' }}>
-          <TextInput
-            name='email'
-            placeholder='이메일 주소를 입력해 주세요'
-            wrapperStyle={{ width: '100%', minWidth: '280px' }}
-            type='email'
-            error={Boolean(touched.email && errors.email)}
-            helperText={errors.email}
-            value={values.email}
-            onBlur={handleBlur}
-            onChange={e => {
-              handleChange(e);
-              setChecked(prev => ({ ...prev, email: false }));
-            }}
-          />
-          <ButtonShort
-            buttonStyle={{
-              position: 'absolute',
-              left: '290px',
-              width: '100px',
-              height: '40px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              ...(!checked.email && {backgroundColor: AppColor.main})
-            }}
-            label='중복 확인'
-            onClick={onCheckEmail}
-            disabled={checked.email}
-          />
-        </div>
-        <TextInput
-          name='password'
-          placeholder='비밀번호를 입력해 주세요'
-          wrapperStyle={{ width: '100%', minWidth: '280px' }}
-          type='password'
-          error={Boolean(touched.password && errors.password)}
-          helperText={errors.password}
-          value={values.password}
-          onBlur={handleBlur}
-          onChange={handleChange}
-        />
-        <TextInput
-          name='rePassword'
-          placeholder='비밀번호를 확인해 주세요'
-          wrapperStyle={{ width: '100%', minWidth: '280px' }}
-          type='password'
-          error={Boolean(touched.rePassword && errors.rePassword)}
-          helperText={errors.rePassword}
-          value={values.rePassword}
-          onBlur={handleBlur}
-          onChange={handleChange}
-        />
-        <ButtonShort
-            label='가입하기'
-            buttonStyle={{
-              backgroundColor: AppColor.main,
-              width: '120px',
-              height: '40px',
-              fontSize: '16px'
-            }}
-          /> 
-      </Form>
-      <div style={{ 
-        marginTop: '20px',
-        minWidth: '280px',
-        fontSize: '12px',
-        color: AppColor.text.gray,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        rowGap: '20px'
-      }}>
-          <div style={{padding: '0px 12px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-            <div style={{backgroundColor: AppColor.border.black, opacity: '48%', width: '48px', height: '1px'}}></div>
-            <div>또는 소셜 아이디로 로그인</div>
-            <div style={{backgroundColor: AppColor.border.black, opacity: '48%', width: '48px', height: '1px'}}></div>
+      {step === 1 ? (
+        <>
+          <h1 style={{ color: AppColor.text.signature, fontSize: '50px', margin: '0 0 32px' }}>회원가입</h1>
+          <Form onSubmit={handleSubmit}>
+            <div style={{ display: 'flex', position: 'relative' }}>
+              <TextInput
+                name='email'
+                placeholder='이메일 주소를 입력해 주세요'
+                wrapperStyle={{ width: '100%', minWidth: '280px' }}
+                type='email'
+                error={Boolean(touched.email && errors.email)}
+                helperText={errors.email}
+                value={values.email}
+                onBlur={handleBlur}
+                onChange={e => {
+                  handleChange(e);
+                  setChecked(prev => ({ ...prev, email: false }));
+                }}
+              />
+              <ButtonShort
+                buttonStyle={{
+                  position: 'absolute',
+                  left: '290px',
+                  width: '100px',
+                  height: '40px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  ...(!checked.email && {backgroundColor: AppColor.main})
+                }}
+                type='button'
+                label='중복 확인'
+                onClick={onCheckEmail}
+                disabled={checked.email}
+              />
+            </div>
+            <TextInput
+              name='password'
+              placeholder='비밀번호를 입력해 주세요'
+              wrapperStyle={{ width: '100%', minWidth: '280px' }}
+              type='password'
+              error={Boolean(touched.password && errors.password)}
+              helperText={errors.password}
+              value={values.password}
+              onBlur={handleBlur}
+              onChange={handleChange}
+            />
+            <TextInput
+              name='rePassword'
+              placeholder='비밀번호를 확인해 주세요'
+              wrapperStyle={{ width: '100%', minWidth: '280px' }}
+              type='password'
+              error={Boolean(touched.rePassword && errors.rePassword)}
+              helperText={errors.rePassword}
+              value={values.rePassword}
+              onBlur={handleBlur}
+              onChange={handleChange}
+            />
+            <ButtonShort
+              label='가입하기'
+              type='submit'
+              buttonStyle={{
+                backgroundColor: AppColor.main,
+                width: '120px',
+                height: '40px',
+                fontSize: '16px'
+              }}
+            />
+          </Form>
+          <div style={{ 
+            marginTop: '20px',
+            minWidth: '280px',
+            fontSize: '12px',
+            color: AppColor.text.gray,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            rowGap: '20px'
+          }}>
+            <div style={{padding: '0px 12px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+              <div style={{backgroundColor: AppColor.border.black, opacity: '48%', width: '48px', height: '1px'}}></div>
+              <div>또는 소셜 아이디로 로그인</div>
+              <div style={{backgroundColor: AppColor.border.black, opacity: '48%', width: '48px', height: '1px'}}></div>
+            </div>
+
+            <div style={{display:'flex', justifyContent: 'center', columnGap: '40px', width: '100%', padding: '0px 28px'}}>
+              <SocialLoginButton onClick={() => {console.log('구글 로그인')}}>
+                <Image width='50px' height='50px' alt='구글 로그인 로고' src={GoogleIcon} />
+              </SocialLoginButton>
+              <SocialLoginButton onClick={() => {console.log('네이버 로그인')}}>
+                <Image width='50px' height='50px' alt='네이버 로그인 로고' src={NaverIcon} />
+              </SocialLoginButton>
+            </div>
+
+            <div>
+              전에도 이용하신 적이 있나요?
+                <Link href='/auth/login'>
+                  <span style={{marginLeft: '6px', cursor: 'pointer', borderBottom: `1px solid ${AppColor.text.gray}`}}>
+                    로그인
+                  </span>
+              </Link>
+            </div>
           </div>
-          
-          <div style={{display:'flex', justifyContent: 'center', columnGap: '40px', width: '100%', padding: '0px 28px'}}>
-            <SocialLoginButton onClick={() => {console.log('구글 로그인')}}>
-              <Image width='50px' height='50px' alt='구글 로그인 로고' src={GoogleIcon} />
-            </SocialLoginButton>
-            <SocialLoginButton onClick={() => {console.log('네이버 로그인')}}>
-              <Image width='50px' height='50px' alt='네이버 로그인 로고' src={NaverIcon} />
-            </SocialLoginButton>
-          </div>
-          
+        </>
+      ) : (
+        <>
+          <h1 style={{ color: AppColor.text.signature, fontSize: '50px', margin: '0' }}>{values.email}</h1>
+          <p style={{color: AppColor.text.signature, fontSize: '32px'}}>입력해주신 이메일로 인증번호를 발송했어요</p>
+          <p style={{color: AppColor.text.gray, fontSize: '16px'}}>발송된 인증번호 6자리를 입력해주세요</p>
+        
           <div>
-            전에도 이용하신 적이 있나요?
-              <Link href='/auth/login'>
-                <span style={{marginLeft: '6px', cursor: 'pointer', borderBottom: `1px solid ${AppColor.text.gray}`}}>
-                  로그인
-                </span>
-            </Link>
           </div>
-        </div>
+        
+          <div style={{display: 'flex', fontSize: '14px', columnGap: '6px', color: AppColor.text.lightgray}}>
+            <p>인증번호가 도착하지 않았나요?</p>
+            <UnderbarTextButton>재발송하기</UnderbarTextButton>
+          </div>
+        
+          <div style={{display: 'flex', fontSize: '14px', columnGap: '6px', color: AppColor.text.lightgray}}>
+            <p>이메일 주소를 잘못 입력하셨나요?</p>
+            <UnderbarTextButton>재입력하기</UnderbarTextButton>
+          </div>
+        </>
+      )}
     </Container>
   );
 };
@@ -220,35 +248,7 @@ const SocialLoginButton = styled.button`
   border: none;
 `;
 
-/* 
-<div style={{ display: 'flex', alignItems: 'center', columnGap: '10px' }}>
-  <TextInput
-    name='nickname'
-    placeholder='사용하실 닉네임을 입력해 주세요.'
-    error={Boolean(touched.nickname && errors.nickname)}
-    helperText={errors.nickname}
-    value={values.nickname}
-    onBlur={handleBlur}
-    onChange={e => {
-      handleChange(e);
-      setChecked(prev => ({ ...prev, nickname: false }));
-    }}
-  />
-  <ButtonShort buttonStyle={{ width: '64px' }} label='중복 체크' onClick={onCheckNickname} disabled={checked.nickname} />
-</div>
-<div style={{ display: 'flex', columnGap: '10px' }}>
-  <TextInput
-    name='email'
-    placeholder='이메일 주소를 입력해 주세요'
-    error={Boolean(touched.email && errors.email)}
-    helperText={errors.email}
-    value={values.email}
-    onBlur={handleBlur}
-    onChange={e => {
-      handleChange(e);
-      setChecked(prev => ({ ...prev, email: false }));
-    }}
-  />
-  <ButtonShort buttonStyle={{ width: '64px' }} label='중복 체크' onClick={onCheckEmail} disabled={checked.email} />
-</div>
-*/
+const UnderbarTextButton = styled.div`
+  cursor: pointer;
+  text-decoration: underline;
+`;
