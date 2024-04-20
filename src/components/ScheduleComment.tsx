@@ -24,7 +24,8 @@ export default function ScheduleComment({scheduleId, chat, isMine = false}: Sche
   const queryClient = useQueryClient();
   
   const formattedDate = useMemo(() => {
-    return formatDate(chat.createDate, 'YYYY년 MM월 DD일 A hh:mm');
+    const createDate = chat.createDate.replace(':', ' ');
+    return formatDate(createDate, 'YYYY년 MM월 DD일 A hh:mm');
   }, [chat]);
   
   const [isToolTipOpened, setIsToolTipOpened] = useState(false);

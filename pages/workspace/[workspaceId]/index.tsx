@@ -45,7 +45,7 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
   const selectedDateFormatMMDD = useMemo(() => dayjs(selectedDate).format('MM/DD'), [selectedDate]);
   
   const {data: scheduleData} = useQuery({
-    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_CALENDAR_BY_MONTH, month],
+    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_CALENDAR_BY_MONTH, workspaceId, month],
     queryFn: () => getWorkspaceCalendarByMonth({workspaceId, month}),
     enabled: !!(selectedYear && selectedMonth && workspaceId),
     initialData: {workspaceName: '', role: 'USER', schedules: []},
@@ -71,7 +71,7 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
   const isAdmin = useMemo(() => scheduleData.role === 'ADMIN', [scheduleData]);
   
   const {data: selectedDateScheduleData} = useQuery({
-    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_SCHEDULES_BY_DATE, selectedDate],
+    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_SCHEDULES_BY_DATE, workspaceId, selectedDate],
     queryFn: () => getWorkspaceSchedulesByDate({workspaceId, date: dayjs(selectedDate).format('YYYYMMDD').toString()}),
     enabled: !!(selectedDate && workspaceId),
     initialData: {workspaceName: '', schedules: []},

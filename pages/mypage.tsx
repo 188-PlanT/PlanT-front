@@ -10,14 +10,16 @@ import { useRouter } from 'next/router';
 import { useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
 import AppColor from '@styles/AppColor';
-import {useState} from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { useAppSelector } from '@store/configStore';
+import { selectMe } from '@store/slices/user';
 
 interface MyPageProps {}
 
 const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
-  const email = "abcd1234@gmail.com"; //TEST 용
-  const nickname = "민혁";
+  const myInfo = useAppSelector(selectMe);
+
   const profile = '';
   // const profile = "https://proxy.goorm.io/service/659153b0a304480d411a9131_d4drKhidbvkV1Nc3HZz.run.goorm.io/9080/file/load/naver_icon.png?path=d29ya3NwYWNlJTJGMTg4X3Byb2plY3RfZnJvbnQlMkZwdWJsaWMlMkZpbWFnZSUyRm5hdmVyX2ljb24ucG5n&docker_id=d4drKhidbvkV1Nc3HZz&secure_session_id=FwAk5nbeqzeCsQeB1gYNcmHCbmXTAtq4";
   
@@ -25,9 +27,9 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
 
   const [checked, setChecked] = useState({ nickname: false });
   
-  const { values, errors, touched, handleSubmit, handleChange, handleBlur, setFieldError } = useFormik({
+  const { values, errors, touched, handleSubmit, handleChange, handleBlur, setFieldError, setFieldValue } = useFormik({
     initialValues: {
-      nickname,
+      nickname: '',
       currentPassword: '',
       password: '',
       rePassword: '',
@@ -41,15 +43,17 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
       password: Yup.string()
         .min(8, '8자리 이상 비밀번호를 입력해 주세요.')
         .max(16, '16자리 이하 비밀번호를 입력해 주세요.'),
-      rePassword: Yup.string(),
+      rePassword: Yup.string()
+        .min(8, '비밀번호는 8자리 이상입니다.')
+        .max(16, '비밀번호는 16자리 이하입니다.'),
     }),
     validate: values => {
       const error: { rePassword?: string } = {};
-      // if (values.password && values.rePassword) {
-      //   if (values.password !== values.rePassword) {
-      //     error.rePassword = '비밀번호가 일치하지 않습니다.';
-      //   }
-      // }
+      if (values.password && values.rePassword) {
+        if (values.password !== values.rePassword) {
+          error.rePassword = '비밀번호가 일치하지 않습니다.';
+        }
+      }
       return error;
     },
     onSubmit: values => {
@@ -67,6 +71,12 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
     },
   });
   
+  useEffect(() => {
+    if (myInfo?.nickName) {
+      setFieldValue('nickname', myInfo.nickName);
+    }
+  } ,[myInfo, setFieldValue]);
+  
   return (
     <Container style={{width: '100%'}}>
       <PageName pageName='개인 환경설정' />
@@ -75,7 +85,7 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
           <Circle>
             {profile ? (
               <Image width={112} height={112} src={profile} alt='프로필 이미지' />
-            ) : nickname[0]}
+            ) : myInfo?.nickName[0]}
           </Circle>
           <ButtonShort
             buttonStyle={{
@@ -113,7 +123,7 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
           <Label>가입된 이메일</Label>
           <div style={{marginTop: '6px', display: 'flex', columnGap: '8px', alignItems: 'center'}}>
             <div style={{width: '20px', height: '20px', backgroundColor: AppColor.background.darkgray}}></div>
-            <Email>{email}</Email>
+            <Email>{myInfo?.email}</Email>
           </div>
         </div>
         
@@ -123,7 +133,7 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
               name='currentPassword'
               placeholder='현재 비밀번호를 입력해 주세요'
               wrapperStyle={{ width: '100%', minWidth: '280px' }}
-              type='currentPassword'
+              type='password'
               error={Boolean(touched.currentPassword && errors.currentPassword)}
               helperText={errors.currentPassword}
               value={values.currentPassword}
@@ -151,7 +161,7 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
               name='rePassword'
               placeholder='새 비밀번호를 한번 더 입력해 주세요'
               wrapperStyle={{ width: '100%', minWidth: '280px' }}
-              type='rePassword'
+              type='password'
               error={Boolean(touched.rePassword && errors.rePassword)}
               helperText={errors.rePassword}
               value={values.rePassword}

@@ -50,9 +50,11 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
   const [status, setStatus] = useState('TODO');
   useEffect(() => {
     if (data.startDate && data.endDate) {
+      const start = data.startDate.replace(':', ' ');
+      const end = data.endDate.replace(':', ' ');
       setFormattedDate({
-        start: formatDate(data.startDate, 'YYYY년 MM월 DD일 HH:mm'),
-        end: formatDate(data.endDate, 'YYYY년 MM월 DD일 HH:mm'),
+        start: formatDate(start, 'YYYY년 MM월 DD일 HH:mm'),
+        end: formatDate(end, 'YYYY년 MM월 DD일 HH:mm'),
       });
     }
     if (data.state) {
