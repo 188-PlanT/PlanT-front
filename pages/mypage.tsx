@@ -10,10 +10,12 @@ import { useRouter } from 'next/router';
 import { useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
 import AppColor from '@styles/AppColor';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { useAppSelector } from '@store/configStore';
 import { selectMe } from '@store/slices/user';
+import { checkNickname } from '@apis/authApi';
+import { changeMyInfo } from '@apis/userApi';
 
 interface MyPageProps {}
 
@@ -25,7 +27,11 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
   
   const router = useRouter();
 
-  const [checked, setChecked] = useState({ nickname: false });
+  const [checked, setChecked] = useState({ nickName: false });
+  
+  const {mutate: _changeMyInfo} = useMutation(changeMyInfo, {
+    onSuccess: () => {},
+  });
   
   const { values, errors, touched, handleSubmit, handleChange, handleBlur, setFieldError, setFieldValue } = useFormik({
     initialValues: {
@@ -57,17 +63,16 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
       return error;
     },
     onSubmit: values => {
-      console.log('제출');
-      if (!checked.nickname) {
+      if (!checked.nickName) {
         toast.error('닉네임 중복 체크를 진행해 주세요');
         return;
       }
       const params = {
-        password: values.password,
-        nickname: values.nickname,
+        password: values.currentPassword,
+        nickName: values.nickname,
       };
-      console.log(params);
-      // _signup(params);
+      // TODO API 수정 후 보수 필요.
+      _changeMyInfo(params);
     },
   });
   
@@ -76,6 +81,24 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
       setFieldValue('nickname', myInfo.nickName);
     }
   } ,[myInfo, setFieldValue]);
+  
+  const onCheckNickName = useCallback(async () => {
+    if (!values.nickname) {
+      toast.error('닉네임을 입력해 주세요.');
+      return;
+    }
+    await checkNickname({nickName: values.nickname})
+      .then((available) => {
+        if (available) {
+          toast.success('사용 가능한 닉네임입니다.');
+          setChecked({nickName: true});
+        } else {
+          toast.error('사용할 수 없는 닉네임입니다.');
+          setFieldError('nickname', '사용할 수 없는 닉네임입니다.')
+        }
+      })
+      .catch((error) => console.error(error));
+  }, [values]);
   
   return (
     <Container style={{width: '100%'}}>
@@ -103,20 +126,35 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
         
         <div>
           <Label>닉네임</Label>
-          <TextInput
-              name='nickname'
-              placeholder='닉네임을 입력해 주세요'
-              wrapperStyle={{ width: '100%', minWidth: '280px' }}
-              type='nickname'
-              error={Boolean(touched.nickname && errors.nickname)}
-              helperText={errors.nickname}
-              value={values.nickname}
-              onBlur={handleBlur}
-              onChange={e => {
-                handleChange(e);
-                setChecked(prev => ({ ...prev, nickname: false }));
+          <div style={{display: 'flex', columnGap: '10px'}}>
+            <TextInput
+                name='nickname'
+                placeholder='닉네임을 입력해 주세요'
+                wrapperStyle={{ width: '100%', minWidth: '280px' }}
+                type='nickname'
+                error={Boolean(touched.nickname && errors.nickname)}
+                helperText={errors.nickname}
+                value={values.nickname}
+                onBlur={handleBlur}
+                onChange={e => {
+                  handleChange(e);
+                  setChecked(prev => ({ ...prev, nickName: false }));
+                }}
+            />
+            <ButtonShort
+              buttonStyle={{
+                width: '92px',
+                height: '40px',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                ...(!checked.nickName && {backgroundColor: AppColor.main}),
               }}
-          />
+              label='중복 체크'
+              onClick={onCheckNickName}
+              disabled={checked.nickName}
+            />
+          </div>
         </div>
         
         <div>
@@ -181,7 +219,8 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
               backgroundColor: AppColor.main,
             }}
             label='수정 완료'
-            onClick={() => {}}
+            type='submit'
+            onClick={handleSubmit}
           />
           <ButtonShort
             buttonStyle={{
