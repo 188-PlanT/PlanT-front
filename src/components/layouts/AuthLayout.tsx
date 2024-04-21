@@ -17,7 +17,7 @@ export default function AuthLayout({ children, title = '', description }: AuthLa
   const router = useRouter();
   
   const { isLoggedIn } = useMe();
-  
+
   useEffect(() => {
     if (isLoggedIn && !router.pathname.includes('/auth/nickname')) {
       router.push('/workspace/personal');

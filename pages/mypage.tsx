@@ -68,8 +68,8 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
       const params = {
         currentPassword: values.currentPassword,
         nickName: values.nickname,
+        ...(values.password && {newPassword: values.password}),
       };
-      // TODO API 수정 후 보수 필요.
       _changeMyInfo(params);
     },
   });

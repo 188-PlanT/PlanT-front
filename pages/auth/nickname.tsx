@@ -189,3 +189,5 @@ const Form = styled.form`
   flex-direction: column;
   row-gap: 30px;
 `;
+
+// Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiI2IiwiZW1haWwiOiJ0ZXN0MjJAZ21haWwuY29tIiwiYXV0aG9yaXRpZXMiOiJST0xFX1BFTkRJTkciLCJleHAiOjE3MTM3ODcxMDR9.t_5tM-eTvSAsAWtRZ3z9pbGuItJHd4PG9L6Q3rV75tA
