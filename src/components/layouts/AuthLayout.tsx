@@ -23,10 +23,11 @@ export default function AuthLayout({ children, title = '', description }: AuthLa
       router.push('/workspace/personal');
       return;
     }
-    if (router.pathname.includes('/auth/nickname') && !isLoggedIn) {
-      router.push('/auth/login');
-      return;
-    }
+    // if (router.pathname.includes('/auth/nickname') && !isLoggedIn) {
+    //   router.push('/auth/login');
+    //   return;
+    // }
+    // TODO 나중에 주석 풀기
   }, [isLoggedIn, router]);
   
   return (

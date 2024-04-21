@@ -27,7 +27,7 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
   
   const router = useRouter();
 
-  const [checked, setChecked] = useState({ nickName: false });
+  const [checked, setChecked] = useState({ nickName: true });
   
   const {mutate: _changeMyInfo} = useMutation(changeMyInfo);
   
@@ -66,7 +66,7 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
         return;
       }
       const params = {
-        password: values.currentPassword,
+        currentPassword: values.currentPassword,
         nickName: values.nickname,
       };
       // TODO API 수정 후 보수 필요.

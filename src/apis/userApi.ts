@@ -23,7 +23,7 @@ export async function getMyInfo(): Promise<UserDto> {
   }
 }
 
-export async function changeMyInfo(params: { nickName?: string; password?: string; profile?: string}): Promise<UserDto | undefined> {
+export async function changeMyInfo(params: { nickName?: string; currentPassword: string; newPassword?: string; profile?: string}): Promise<UserDto | undefined> {
   try {
     const {
       data,
