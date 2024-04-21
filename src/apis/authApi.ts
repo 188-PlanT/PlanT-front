@@ -56,8 +56,28 @@ export async function checkEmail(params: { email: string }): Promise<boolean | u
 export async function setNickname(params: { nickname: string }): Promise<UserDto | undefined> {
   try {
     const {
-      data,
+      data: {accessToken}
     } = await axiosInstance.put(`${prefix}/users/nickname`, params);
+    localStorage.setItem('accessToken', accessToken);
+    axiosInstance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function requestAuthenticationCode({email}: {email: string}) {
+  try {
+    const {data} = await axiosInstance.get(`${prefix}/users/email/code?email=${email}`);
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function checkAuthenticationCode({email, code}: {email: string; code: string | number}) {
+  try {
+    const {data} = await axiosInstance.post(`${prefix}/users/email/code?email=${email}`, {code});
     return data;
   } catch (error) {
     console.error(error);

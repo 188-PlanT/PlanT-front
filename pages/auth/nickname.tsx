@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { login } from '@apis/authApi';
 import { useMutation } from '@tanstack/react-query';
 import { checkNickname, setNickname } from '@apis/authApi';
+import { USER_QUERY_KEY } from '@apis/userApi';
 import { MouseEvent, useCallback, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -33,27 +34,31 @@ const Nickname: NextPageWithLayout<NicknameProps> = ({}) => {
   });
 
   const { mutate: _setNickname } = useMutation(setNickname, {
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success('닉네임 설정 완료');
-      router.push('/auth/login');
+      router.push('/workspace/personal');
     },
   });
 
   const { mutate: _checkNickname } = useMutation(checkNickname, {
     onSuccess: res => {
-      if (!res) return;
-      if (res.message) {
-        setFieldError('nickname', res.message);
-      } else {
-        setChecked(prev => ({ ...prev, nickname: true }));
+      if (!res) {
+        toast.error('사용할 수 없는 닉네임입니다.');
+        setFieldError('nickname', '이미 사용 중인 닉네임입니다.');
+        return;
       }
+      toast.success('사용할 수 있는 닉네임입니다.');
+      setChecked(prev => ({ ...prev, nickname: true }));
     },
   });
 
   const onCheckNickname = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
-      if (!values.nickname) return;
+      if (!values.nickname) {
+        toast.error('닉네임을 입력해 주세요.');
+        return;
+      };
       _checkNickname({ nickName: values.nickname });
     },
     [values.nickname, _checkNickname],
@@ -94,7 +99,10 @@ const Nickname: NextPageWithLayout<NicknameProps> = ({}) => {
               helperText={errors.nickname}
               value={values.nickname}
               onBlur={handleBlur}
-              onChange={handleChange}
+              onChange={e => {
+                  handleChange(e);
+                  setChecked(prev => ({ ...prev, nickname: false }));
+                }}
             />
             <ShortButton
                 buttonStyle={{
@@ -103,7 +111,7 @@ const Nickname: NextPageWithLayout<NicknameProps> = ({}) => {
                   borderRadius: '8px',
                   fontSize: '14px',
                   fontWeight: 'bold',
-                  backgroundColor: AppColor.main,
+                  ...(!checked.nickname && {backgroundColor: AppColor.main}),
                 }}
                 label='중복 확인'
                 onClick={onCheckNickname}
@@ -127,8 +135,8 @@ const Nickname: NextPageWithLayout<NicknameProps> = ({}) => {
     ) : 
     (
       <Container>
-        <h1 style={{ color: AppColor.text.main, fontSize: '50px', margin: '0' }}>{values.nickname}</h1>
-        <h2 style={{ color: AppColor.text.main, fontSize: '30px', margin: '6px 0' }}>
+        <h1 style={{ color: AppColor.text.signature, fontSize: '50px', margin: '0' }}>{values.nickname}</h1>
+        <h2 style={{ color: AppColor.text.signature, fontSize: '30px', margin: '6px 0' }}>
           멋있는 닉네임이네요! 이 닉네임으로 시작하시겠어요?
         </h2>
         <h3  style={{ color: AppColor.text.gray, fontSize: '16px', fontWeight: 'bold', margin: '4px 0 32px' }}>
@@ -136,7 +144,7 @@ const Nickname: NextPageWithLayout<NicknameProps> = ({}) => {
         </h3>
         <div style={{display: 'flex', columnGap: '40px', marginTop: '48px'}}>
           <ShortButton
-            onClick={() => {}}
+            onClick={onSetNickname}
             label='좋아요!'
             buttonStyle={{
               backgroundColor: AppColor.main,

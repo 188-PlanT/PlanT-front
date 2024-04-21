@@ -6,10 +6,10 @@ import styled from '@emotion/styled';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useRouter } from 'next/router';
-import { checkEmail, checkNickname, signup } from '@apis/authApi';
+import { checkEmail, checkNickname, signup, login, requestAuthenticationCode, checkAuthenticationCode } from '@apis/authApi';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
-import { MouseEvent, useCallback, useState } from 'react';
+import { MouseEvent, ChangeEvent, useCallback, useState } from 'react';
 import AppColor from '@styles/AppColor';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -22,10 +22,15 @@ interface SignUpProps {}
 const SignUp: NextPageWithLayout<SignUpProps> = ({}) => {
   const router = useRouter();
   
-  const [step, setStep] = useState(1); //TODO 1로 원복하기
+  const [step, setStep] = useState(1);
 
   const [checked, setChecked] = useState({ email: false });
 
+  const [code, setCode] = useState('');
+  const onChangeCode = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setCode(e.target.value);
+  });
+  
   const { values, errors, touched, handleSubmit, handleChange, handleBlur, setFieldError } = useFormik({
     initialValues: {
       email: '',
@@ -49,25 +54,31 @@ const SignUp: NextPageWithLayout<SignUpProps> = ({}) => {
       }
       return error;
     },
-    onSubmit: values => {
+    onSubmit: async (values) => {
       if (!checked.email) {
         toast.error('이메일 중복 체크를 진행해 주세요');
         return;
       }
-      setStep(2);
-      // const params = {
-      //   email: values.email,
-      //   password: values.password,
-      // };
-      //TODO 인증 페이지로 데이터 넘기고 거기서 회원가입 요청
-      // _signup(params);
+      await requestAuthenticationCode({email: values.email})
+        .then(() => {
+          setStep(2);
+        })
+        .catch(error => console.error(error));
     },
   });
 
   const { mutate: _signup } = useMutation(signup, {
-    onSuccess: () => {
+    onSuccess: async (data, valiable) => {
       toast.success('가입이 완료되었습니다.');
-      router.push('/auth/login');
+      await login({email: valiable.email, password: valiable.password})
+        .then(() => {
+          router.push('/auth/nickname');
+        })
+        .catch((error) => {
+          console.error(error);
+          toast.error('알 수 없는 오류가 발생했습니다.');
+          router.push('/auth/login');
+        });
     },
   });
 
@@ -91,6 +102,34 @@ const SignUp: NextPageWithLayout<SignUpProps> = ({}) => {
     [values.email, _checkEmail],
   );
 
+  const onSubmitCode = useCallback(async () => {
+    console.log(code, code.length);
+    if (code.length !== 6) {
+      toast.error('올바른 형식의 인증번호를 입력해 주세요');
+      return;
+    }
+    await checkAuthenticationCode({email: values.email, code})
+      .then(async (res) => {
+        const params = {
+          email: values.email,
+          password: values.password,
+        };
+        console.log(res, params);
+        _signup(params);
+      })
+      .catch((error) => console.error(error));
+  }, [code, values]);
+  
+  const onReRequestCode = useCallback(async () => {
+    setCode('');
+    await requestAuthenticationCode({email: values.email})
+      .catch(error => console.error(error));
+  }, [values])
+  
+  const onResetStep = useCallback(() => {
+    setStep(1);
+  });
+  
   return (
     <Container>
       {step === 1 ? (
@@ -203,17 +242,36 @@ const SignUp: NextPageWithLayout<SignUpProps> = ({}) => {
           <p style={{color: AppColor.text.signature, fontSize: '32px'}}>입력해주신 이메일로 인증번호를 발송했어요</p>
           <p style={{color: AppColor.text.gray, fontSize: '16px'}}>발송된 인증번호 6자리를 입력해주세요</p>
         
-          <div>
+          <div style={{position: 'relative', display: 'flex', columnGap: '10px', margin: '30px 0'}}>
+            <Input value={code} onChange={onChangeCode} maxLength={6} />
+            <CodeText>{code[0]}</CodeText>
+            <CodeText>{code[1]}</CodeText>
+            <CodeText>{code[2]}</CodeText>
+            <CodeText>{code[3]}</CodeText>
+            <CodeText>{code[4]}</CodeText>
+            <CodeText>{code[5]}</CodeText>
           </div>
+          <ButtonShort
+            label='인증하기'
+            type='button'
+            onClick={onSubmitCode}
+            buttonStyle={{
+              backgroundColor: AppColor.main,
+              width: '120px',
+              height: '40px',
+              fontSize: '16px',
+              marginBottom: '24px',
+            }}
+          />
         
-          <div style={{display: 'flex', fontSize: '14px', columnGap: '6px', color: AppColor.text.lightgray}}>
+          <div style={{display: 'flex', fontSize: '14px', columnGap: '6px', marginBottom: '10px', color: AppColor.text.lightgray}}>
             <p>인증번호가 도착하지 않았나요?</p>
-            <UnderbarTextButton>재발송하기</UnderbarTextButton>
+            <UnderbarTextButton onClick={onReRequestCode}>재발송하기</UnderbarTextButton>
           </div>
         
           <div style={{display: 'flex', fontSize: '14px', columnGap: '6px', color: AppColor.text.lightgray}}>
             <p>이메일 주소를 잘못 입력하셨나요?</p>
-            <UnderbarTextButton>재입력하기</UnderbarTextButton>
+            <UnderbarTextButton onClick={onResetStep}>재입력하기</UnderbarTextButton>
           </div>
         </>
       )}
@@ -251,4 +309,36 @@ const SocialLoginButton = styled.button`
 const UnderbarTextButton = styled.div`
   cursor: pointer;
   text-decoration: underline;
+`;
+
+const Input = styled.input`
+  position: absolute;
+  border: none;
+  background-color: transparent;
+  width: 410px;
+  height: 72px;
+  color: transparent;
+  &:focus {
+    outline: none;
+  }
+  &::selection {
+    background-color: transparent;
+    color: transparent;
+  }
+  &::-moz-selection {
+    background-color: transparent;
+    color: transparent;
+  }  
+`;
+
+const CodeText = styled.div`
+  width: 60px;
+  height: 68px;
+  border-radius: 8px;
+  background-color: ${AppColor.background.lightgray};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: bold;
 `;

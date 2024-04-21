@@ -14,19 +14,18 @@ export default function useMe() {
 
   const { data: me } = useQuery([USER_QUERY_KEY.GET_MY_INFO], () => getMyInfo(), {
     onSuccess: (res) => {
+      setIsLogedIn(true);
       if (res.state === 'PENDING') {
-        setIsLogedIn(false);
         router.push('/auth/nickname');
         return;
       }
-      setIsLogedIn(true);
       dispatch(setMyInfo(res));
     },
     onError: () => {
       setIsLogedIn(false);
       router.push('/auth/login');
     },
-    enabled: !router.pathname.includes('/auth/'),
+    enabled: !['/auth/login', '/auth/signup'].includes(router.pathname),
     retry: false,
     initialData: null,
   });
