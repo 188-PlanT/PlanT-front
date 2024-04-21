@@ -53,7 +53,7 @@ export async function checkEmail(params: { email: string }): Promise<boolean | u
   }
 }
 
-export async function setNickname(params: { nickname: string }): Promise<UserDto | undefined> {
+export async function setNickname(params: { nickName: string }): Promise<UserDto | undefined> {
   try {
     const {
       data: {accessToken}
