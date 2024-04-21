@@ -256,7 +256,7 @@ const Email = styled.p`
   font-size: 18px;
   font-weight: bold;
   color: ${AppColor.text.signature};
-`
+`;
 
 const Circle = styled.div`
   width: 112px;
@@ -269,4 +269,4 @@ const Circle = styled.div`
   color: ${AppColor.text.signature};
   font-size: 40px;
   font-weight: bold;
-`
+`;
