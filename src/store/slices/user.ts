@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { UserDto } from '@customTypes/UserDto';
 import { RootState } from '../configStore';
+import axiosInstance from '@utils/axios';
 
 const initialState: {me?: UserDto} = {};
 
