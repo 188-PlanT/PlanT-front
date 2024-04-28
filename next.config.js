@@ -3,11 +3,20 @@ const API_KEY = '1111';
 
 const nextConfig = {
   reactStrictMode: true,
+  /*
   eslint: {
     // Warning: This allows production builds to successfully complete even if
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  typescript: {
+    // !! WARN !!
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    // !! WARN !!
+    ignoreBuildErrors: true,
+  },
+  */
   images: {
     domains: ['proxy.goorm.io', 'plant-s3.s3.ap-northeast-2.amazonaws.com', 'daino22is214z.cloudfront.net'],
   },
