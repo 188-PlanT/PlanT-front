@@ -44,13 +44,14 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const selectedDateFormatMMDD = useMemo(() => dayjs(selectedDate).format('MM/DD'), [selectedDate]);
   
-  const {data: scheduleData} = useQuery({
-    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_CALENDAR_BY_MONTH, workspaceId, month],
-    queryFn: () => getWorkspaceCalendarByMonth({workspaceId, month}),
-    enabled: !!(selectedYear && selectedMonth && workspaceId),
-    initialData: {workspaceName: '', role: 'USER', schedules: []},
-    refetchOnWindowFocus: 'always',
-  });
+  const {data: scheduleData} = useQuery(
+    [WORKSPACE_QUERY_KEY.GET_WORKSPACE_CALENDAR_BY_MONTH, workspaceId, month],
+    () => getWorkspaceCalendarByMonth({workspaceId: Number(workspaceId), month}),
+    {
+      enabled: !!(selectedYear && selectedMonth && workspaceId),
+      initialData: {workspaceName: '', role: 'USER', schedules: []},
+    },
+  );
 
   const calendarData = useMemo(() => {
     const calendarArray = makeCalendarArray(selectedYear, selectedMonth);
@@ -70,12 +71,14 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
   
   const isAdmin = useMemo(() => scheduleData.role === 'ADMIN', [scheduleData]);
   
-  const {data: selectedDateScheduleData} = useQuery({
-    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_SCHEDULES_BY_DATE, workspaceId, selectedDate],
-    queryFn: () => getWorkspaceSchedulesByDate({workspaceId, date: dayjs(selectedDate).format('YYYYMMDD').toString()}),
-    enabled: !!(selectedDate && workspaceId),
-    initialData: {workspaceName: '', schedules: []},
-  });
+  const {data: selectedDateScheduleData} = useQuery(
+    [WORKSPACE_QUERY_KEY.GET_WORKSPACE_SCHEDULES_BY_DATE, workspaceId, selectedDate],
+    () => getWorkspaceSchedulesByDate({workspaceId: Number(workspaceId), date: dayjs(selectedDate).format('YYYYMMDD').toString()}),
+    {
+      enabled: !!(selectedDate && workspaceId),
+      initialData: {workspaceName: '', schedules: []},
+    },
+  );
 
   const onClickPrevMonth = useCallback(() => {
     if (selectedMonth === 1) {
@@ -103,23 +106,23 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
   
   const {mutate: _deleteWorkspaceUser} = useMutation(deleteWorkspaceUser, {
     onSuccess: (res) => {
-      queryClient.invalidateQueries({querykey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId], refetchType: 'inactive'});
+      queryClient.invalidateQueries([WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId]);
       console.log(res);
     },
   });
   const [withdrawModalIsOpened, withdrawModalOpen, withdrawModalClose] = useModal();
   const onClickWithdraw = useCallback(async () => {
     await deleteWorkspaceUser({
-      workspaceId,
+      workspaceId: Number(workspaceId),
       userId: myUserId,
     }).then(() => {
-      queryClient.invalidateQueries({queryKey: [USER_QUERY_KEY.GET_MY_WORKSPACE_LIST]});
+      queryClient.invalidateQueries([USER_QUERY_KEY.GET_MY_WORKSPACE_LIST]);
       router.push('/workspace/personal');
     }).catch((error) => {
       toast.error(error.message);
     });
     withdrawModalClose();
-  }, [withdrawModalClose, router, workspaceId, myUserId]);
+  }, [queryClient, withdrawModalClose, router, workspaceId, myUserId]);
   
   return (
     <div>
@@ -183,7 +186,7 @@ const TeamWorkspace: NextPageWithLayout<TeamWorkspaceProps> = ({}) => {
             (schedule) => 
               <ToDoCard 
                 key={schedule.scheduleId}
-                workspaceId={workspaceId} 
+                workspaceId={Number(workspaceId)}
                 scheduleId={schedule.scheduleId} 
                 workspaceName={workspaceName} 
                 scheduleName={schedule.scheduleName} 

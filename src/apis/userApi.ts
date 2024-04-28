@@ -23,7 +23,7 @@ export async function getMyInfo(): Promise<UserDto> {
   }
 }
 
-export async function changeMyInfo(params: { nickName?: string; currentPassword: string; newPassword?: string; profile?: string}): Promise<UserDto | undefined> {
+export async function changeMyInfo(params: { nickName?: string; currentPassword: string; newPassword?: string; profile?: string}): Promise<UserDto> {
   try {
     const {
       data,
@@ -34,7 +34,7 @@ export async function changeMyInfo(params: { nickName?: string; currentPassword:
   }
 }
 
-export async function getMyWorkspaceList(): Promise<{userId: number; workspaces: WorkspaceSimpleDto[]} | undefined> {
+export async function getMyWorkspaceList(): Promise<{userId: number; workspaces: WorkspaceSimpleDto[]}> {
   try {
     const {
       data,
@@ -45,7 +45,7 @@ export async function getMyWorkspaceList(): Promise<{userId: number; workspaces:
   }
 }
 
-export async function getMyScheduleList({month}: {month: string}): Promise<{userId: number; schedules: {toDo: ScheduleSimpleDto[], InProgress: ScheduleSimpleDto[], done: ScheduleSimpleDto[]}} | undefined> {
+export async function getMyScheduleList({month}: {month: string}): Promise<{userId: number; schedules: {toDo: ScheduleSimpleDto[], inProgress: ScheduleSimpleDto[], done: ScheduleSimpleDto[]}}> {
   try {
     const {
       data,
@@ -56,7 +56,7 @@ export async function getMyScheduleList({month}: {month: string}): Promise<{user
   }
 }
 
-export async function searchUser({keyword}: {keyword: string}): Promise<{users: {userId: number; email: string; nickName: string}[]} | undefined> {
+export async function searchUser({keyword}: {keyword: string}): Promise<{users: {userId: number; email: string; nickName: string}[]}> {
   try {
     const {
       data,

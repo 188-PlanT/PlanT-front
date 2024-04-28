@@ -29,7 +29,7 @@ const SignUp: NextPageWithLayout<SignUpProps> = ({}) => {
   const [code, setCode] = useState('');
   const onChangeCode = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setCode(e.target.value);
-  });
+  }, []);
   
   const { values, errors, touched, handleSubmit, handleChange, handleBlur, setFieldError } = useFormik({
     initialValues: {
@@ -118,7 +118,7 @@ const SignUp: NextPageWithLayout<SignUpProps> = ({}) => {
         _signup(params);
       })
       .catch((error) => console.error(error));
-  }, [code, values]);
+  }, [code, values, _signup]);
   
   const onReRequestCode = useCallback(async () => {
     setCode('');
@@ -128,7 +128,7 @@ const SignUp: NextPageWithLayout<SignUpProps> = ({}) => {
   
   const onResetStep = useCallback(() => {
     setStep(1);
-  });
+  }, []);
   
   return (
     <Container>

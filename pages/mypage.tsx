@@ -96,13 +96,17 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
       toast.error('닉네임을 입력해 주세요.');
       return;
     }
+    if (values.nickname.length > 8) {
+      toast.error('닉네임은 8자 이하여야 합니다.');
+      return;
+    }
     _checkNickname({nickName: values.nickname});
-  }, [values]);
+  }, [values, _checkNickname]);
   
   return (
     <Container style={{width: '100%'}}>
       <PageName pageName='개인 환경설정' />
-      <div style={{margin: '50px 18%', display: 'flex', flexDirection: 'column', rowGap: '28px'}}>        
+      <form onSubmit={handleSubmit} style={{margin: '50px 18%', display: 'flex', flexDirection: 'column', rowGap: '28px'}}>        
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '120px', rowGap: '18px'}}>
           <Circle>
             {profile ? (
@@ -150,6 +154,7 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
                 ...(!checked.nickName && {backgroundColor: AppColor.main}),
               }}
               label='중복 체크'
+              type="button"
               onClick={onCheckNickName}
               disabled={checked.nickName}
             />
@@ -219,7 +224,6 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
             }}
             label='수정 완료'
             type='submit'
-            onClick={handleSubmit}
           />
           <ButtonShort
             buttonStyle={{
@@ -230,11 +234,12 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
               fontWeight: 'bold',
               backgroundColor: AppColor.text.error,
             }}
+            type="button"
             label='회원 탈퇴'
             onClick={() => {}}
           />
         </div>
-      </div>
+      </form>
     </Container>
   );
 };

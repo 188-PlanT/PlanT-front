@@ -33,8 +33,8 @@ interface AddPersonalScheduleProps {}
 const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) => {
   const router = useRouter();
   
-  const { data: {userId, workspaces: workspaceList} } = useQuery([USER_QUERY_KEY.GET_MY_WORKSPACE_LIST], getMyWorkspaceList, {
-    initialData: [],
+  const { data: {workspaces: workspaceList} } = useQuery([USER_QUERY_KEY.GET_MY_WORKSPACE_LIST], getMyWorkspaceList, {
+    initialData: {userId: 0, workspaces: []},
   });
 
   const [stopModalIsOpened, stopModalOpenModal, stopModalCloseModal] = useModal();
@@ -57,15 +57,17 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
       setSelectedMemberList(updatedList);
   }, [selectedMemberList]);
   
-  const {data: memberList} = useQuery({
-    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USER_BY_WID],
-    queryFn: async () => {
-      const result = await getWorkspaceUserByWId({workspaceId: selectedWorkspace.workspaceId});
+  const {data: memberList} = useQuery(
+    [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, selectedWorkspace?.workspaceId],
+    async () => {
+      const result = await getWorkspaceUserByWId({workspaceId: Number(selectedWorkspace?.workspaceId)});
       return result.users.map(u => ({userId: u.userId, nickName: u.nickName}));
     },
-    initialData: [],
-    enabled: !!selectedWorkspace,
-  });
+    {
+      initialData: [],
+      enabled: !!selectedWorkspace,
+    },
+  );
   
   const [selectedDate, setSelectedDate] = useState({start: '', end: ''});
   const onChangeStartDate = useCallback((date) => {
@@ -129,6 +131,7 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
     },
   });
   const onClickSubmitconfirm = useCallback(() => {
+    if (!selectedWorkspace) return;
     _createSchedule({
       workspaceId: selectedWorkspace.workspaceId,
       name,
@@ -143,7 +146,7 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
   
   return (
     <Container>
-      <PageName pageName={selectedWorkspace?.workspaceName ? selectedWorkspace?.workspaceName : '일정 생성하기'} additionalName={name} />
+      <PageName pageName={selectedWorkspace?.workspaceName ? selectedWorkspace.workspaceName : '일정 생성하기'} additionalName={name} />
       
       <div style={{margin: '50px 18%'}}>
         <div style={{display: 'flex', flexDirection: 'column', rowGap: '20px'}}>

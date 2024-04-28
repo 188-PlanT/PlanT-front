@@ -13,6 +13,7 @@ import { useAppSelector } from '@store/configStore';
 import {selectNickName} from '@store/slices/user';
 import { useQuery } from '@tanstack/react-query';
 import { getMyScheduleList, USER_QUERY_KEY } from '@apis/userApi';
+import { ScheduleSimpleDto } from '@customTypes/ScheduleSimpleDto';
 import dayjs from 'dayjs';
 
 interface PersonalWorkspaceProps {}
@@ -23,24 +24,24 @@ const PersonalWorkspace: NextPageWithLayout<PersonalWorkspaceProps> = ({}) => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   
-  const { data : {schedules}, refetch } = useQuery(
+  const { data, refetch } = useQuery(
     [USER_QUERY_KEY.GET_MY_SCHEDULE_LIST],
     () => getMyScheduleList({month: dayjs(selectedYear.toString() + selectedMonth.toString()).format('YYYYMM').toString()}),
     {
-      skip: !selectedYear || !selectedMonth,
-      initialData: {},
+      enabled: !!selectedYear && !!selectedMonth,
+      initialData: {schedules: {toDo: [], inProgress: [], done: []}, userId: 0},
     }
   );
-  const [scheduleData, setScheduleData] = useState({
+  const [scheduleData, setScheduleData] = useState<{toDo: ScheduleSimpleDto[]; inProgress: ScheduleSimpleDto[]; done: ScheduleSimpleDto[]}>({
     toDo: [],
     inProgress: [],
     done: [],
   });
   useEffect(() => {
-    if (schedules) {
-      setScheduleData(schedules);
+    if (data?.schedules) {
+      setScheduleData(data.schedules);
     }
-  }, [schedules]);
+  }, [data]);
   useEffect(() => {
     refetch();
   }, [selectedMonth, refetch]);

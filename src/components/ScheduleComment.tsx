@@ -54,17 +54,17 @@ export default function ScheduleComment({scheduleId, chat, isMine = false}: Sche
     onSuccess: (data, valiable) => {
       setIsEditable(false);
       setContent(valiable.content);
-      queryClient.invalidateQueries({queryKey: [SCHEDULE_QUERY_KEY.GET_SCHEDULE_DETAIL_BY_SID, scheduleId]});
+      queryClient.invalidateQueries([SCHEDULE_QUERY_KEY.GET_SCHEDULE_DETAIL_BY_SID, scheduleId]);
     },
   });
   const onEditComment = useCallback(() => {
     _updateComment({scheduleId, chatId: chat.chatId, content});
-  }, [chat, scheduleId, content]);
+  }, [chat, scheduleId, content, _updateComment]);
   
   
   const {mutate: _deleteComment} = useMutation(deleteComment, {
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: [SCHEDULE_QUERY_KEY.GET_SCHEDULE_DETAIL_BY_SID, scheduleId]});
+      queryClient.invalidateQueries([SCHEDULE_QUERY_KEY.GET_SCHEDULE_DETAIL_BY_SID, scheduleId]);
     },
   });
   const onDeleteComment = useCallback(() => {
@@ -72,7 +72,7 @@ export default function ScheduleComment({scheduleId, chat, isMine = false}: Sche
       _deleteComment({scheduleId, chatId: chat.chatId});
       closeModal();
     }
-  }, [chat, scheduleId, closeModal]);
+  }, [chat, scheduleId, closeModal, _deleteComment]);
   
   return (
     <Container>
@@ -87,7 +87,7 @@ export default function ScheduleComment({scheduleId, chat, isMine = false}: Sche
 
         {isMine && (
           <div style={{display: 'flex', columnGap: '4px', position: 'relative'}}>
-            <Image src={MoreIcon} height={21} width={5} style={{cursor: 'pointer'}} onClick={() => setIsToolTipOpened(prev => !prev)} />
+            <Image src={MoreIcon} height={21} width={5} style={{cursor: 'pointer'}} onClick={() => setIsToolTipOpened(prev => !prev)} alt="더보기" />
             {isToolTipOpened && (
               <ToolTip>
                 <Button onClick={onClickEditButton}>

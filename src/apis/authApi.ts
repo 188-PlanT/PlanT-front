@@ -60,7 +60,7 @@ export async function setNickname(params: { nickName: string }): Promise<UserDto
     } = await axiosInstance.put(`${prefix}/users/nickname`, params);
     localStorage.setItem('accessToken', accessToken);
     axiosInstance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-    return data;
+    return accessToken;
   } catch (error) {
     console.error(error);
   }

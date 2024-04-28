@@ -5,7 +5,7 @@ import Logo from '@public/image/logo.png';
 import WorkspaceProfile from '@components/WorkspaceProfile';
 import PlusButton from '@components/PlusButton';
 import SettingButton from '@components/SettingButton';
-import {WorkspaceSimpleDto} from '@customType/WorkspaceSimpleDto';
+import {WorkspaceSimpleDto} from '@customTypes/WorkspaceSimpleDto';
 
 import TestImage from '@public/image/kakao_icon.png';
 

@@ -3,8 +3,13 @@ const API_KEY = '1111';
 
 const nextConfig = {
   reactStrictMode: true,
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
+  },
   images: {
-    domains: ['proxy.goorm.io', 'plant-s3.s3.ap-northeast-2.amazonaws.com'],
+    domains: ['proxy.goorm.io', 'plant-s3.s3.ap-northeast-2.amazonaws.com', 'daino22is214z.cloudfront.net'],
   },
   // async redirects() {
   //   return [

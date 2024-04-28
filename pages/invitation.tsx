@@ -1,6 +1,7 @@
 import CommonLayout from '@components/layouts/CommonLayout';
 import styled from '@emotion/styled';
 import Head from 'next/head';
+import Image from 'next/image';
 import AppColor from '@styles/AppColor';
 import ShortButton from '@components/atoms/ShortButton';
 import { useRouter } from 'next/router';
@@ -20,6 +21,7 @@ const Invitaion: NextPageWithLayout<InvitaionProps> = ({}) => {
   const onAcceptInvitaion = useCallback(async () => {
     console.log('초대 수락');
     //TODO 구현
+    // router.push('/');
   }, [router]);
   
   //TODO 프로필에 로고 추가 + 파비콘 추가

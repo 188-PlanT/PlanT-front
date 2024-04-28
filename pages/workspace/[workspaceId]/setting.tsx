@@ -38,16 +38,18 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
   
   const workspaceId = useMemo(() => router.query.workspaceId, [router]);
   
-  const {data: workspaceData} = useQuery({
-      queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId],
-      queryFn: () => getWorkspaceUserByWId({workspaceId}),
+  const {data: workspaceData} = useQuery(
+    [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId],
+    () => getWorkspaceUserByWId({workspaceId: Number(workspaceId)}),
+    {
       enabled: !!workspaceId,
       onError: () => {
         toast.error('해당 워크스페이스의 관리자가 아닙니다. 관리자에게 문의해 주세요.');
         router.push(`/workspace/${workspaceId}`);
       },
-      initialData: {users: [], workspaceName: '', profile: ''},
-    });
+      initialData: {users: [], workspaceName: '', profile: '', workspaceId: 0},
+    },
+  );
   
   const { values, errors, touched, handleChange, handleBlur, setFieldValue, setFieldError } = useFormik({
     initialValues: {
@@ -56,6 +58,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
     validationSchema: Yup.object({
       name: Yup.string().max(30, '30자 이내 팀 이름을 입력해 주세요.').required('30자 이내 팀 이름을 입력해 주세요.'),
     }),
+    onSubmit: () => {},
   });
 
   useEffect(() => {
@@ -65,12 +68,14 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
   }, [workspaceData, setFieldValue]);
   
   const [searchKeyword, setSearchKeyword] = useState('');
-  const {data: {users: searchResults}, refetch} = useQuery({
-    queryKey: [USER_QUERY_KEY.SEARCH_USER],
-    queryFn: () => searchUser({keyword: searchKeyword}),
-    enabled: !!searchKeyword,
-    initialData: {users: []},
-  });
+  const {data: {users: searchResults}, refetch} = useQuery(
+    [USER_QUERY_KEY.SEARCH_USER],
+    () => searchUser({keyword: searchKeyword}),
+    {
+      enabled: !!searchKeyword,
+      initialData: {users: []},
+    },
+  );
 
   useEffect(() => {
     if (!!searchKeyword) {
@@ -85,7 +90,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
   const queryClient = useQueryClient();
   const {mutate: _addWorkspaceUser} = useMutation(addWorkspaceUser, {
     onSuccess: (res) => {
-      queryClient.invalidateQueries({querykey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId], refetchType: 'inactive'});
+      queryClient.invalidateQueries([WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId]);
       console.log(res);
     },
   });
@@ -100,7 +105,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
       }
 
       await _addWorkspaceUser({
-        workspaceId,
+        workspaceId: Number(workspaceId),
         userId: user.userId,
       });
       // if (candidateUserList.filter(u => u.userId === user.userId).length !== 0) return;
@@ -110,7 +115,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
   
   const {mutate: _deleteWorkspaceUser} = useMutation(deleteWorkspaceUser, {
     onSuccess: (res) => {
-      queryClient.invalidateQueries({querykey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId], refetchType: 'inactive'});
+      queryClient.invalidateQueries([WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId]);
       console.log(res);
     },
   });
@@ -121,8 +126,9 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
       kickModalOpen();
     }, [kickModalOpen]);
   const onKickUser = useCallback(() => {
+    if (!selectedKickedUserId) return;
     _deleteWorkspaceUser({
-        workspaceId,
+        workspaceId: Number(workspaceId),
         userId: selectedKickedUserId,
       });
     kickModalClose();
@@ -136,25 +142,25 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
   
   const onClickWithdraw = useCallback(async () => {
     await deleteWorkspaceUser({
-      workspaceId,
+      workspaceId: Number(workspaceId),
       userId: myUserId,
     }).then(() => {
-      queryClient.invalidateQueries({queryKey: [USER_QUERY_KEY.GET_MY_WORKSPACE_LIST]});
+      queryClient.invalidateQueries([USER_QUERY_KEY.GET_MY_WORKSPACE_LIST]);
       router.push('/workspace/personal');
     }).catch((error) => {
       toast.error(error.message);
     });
     withdrawModalClose();
-  }, [withdrawModalClose, router, workspaceId, myUserId]);
+  }, [queryClient, withdrawModalClose, router, workspaceId, myUserId]);
   
   const {mutate: _deleteWorkspace} = useMutation(deleteWorkspace, {
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: [USER_QUERY_KEY.GET_MY_WORKSPACE_LIST]});
+      queryClient.invalidateQueries([USER_QUERY_KEY.GET_MY_WORKSPACE_LIST]);
       router.push('/workspace/personal');
     },
   });
   const onClickDelete = useCallback(() => {
-    _deleteWorkspace({workspaceId});
+    _deleteWorkspace({workspaceId: Number(workspaceId)});
     deleteModalClose();
     router.push('/workspace/personal');
   }, [deleteModalClose, router, _deleteWorkspace, workspaceId]);
@@ -165,7 +171,8 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
       setProfile(workspaceData.profile);
     }
   }, [workspaceData])
-  const onChangeImage = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
+  const onChangeImage = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    /*
     const { files, name } = e.target;
     console.log(files, name);
     // TODO 이미지 업로드 연동 진행 중
@@ -185,12 +192,13 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
             console.error(error);
           });
     }
+    */
   }, []);
   
   
   const {mutate: _updateWorkspaceInfo} = useMutation(updateWorkspaceInfo, {
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId]});
+      queryClient.invalidateQueries([WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId]);
       toast.success('워크스페이스 정보가 성공적으로 변경되었습니다.');
     },
     onError: () => {
@@ -198,8 +206,8 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
     },
   });
   const updateWorkspace = useCallback(() => {
-    _updateWorkspaceInfo({workspaceId, name: values.name, profile}); //TODO 나중에 이미지 업로드 연동 후 profile 추가 가능
-  }, [workspaceId, values, profile]);
+    _updateWorkspaceInfo({workspaceId: Number(workspaceId), name: values.name, profile}); //TODO 나중에 이미지 업로드 연동 후 profile 추가 가능
+  }, [workspaceId, values, profile, _updateWorkspaceInfo]);
   
   return (
     <Container style={{width: '100%'}}>
@@ -211,17 +219,13 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
               <Image width={112} height={112} style={{borderRadius: '100%'}} src={profile} alt='프로필 이미지' />
             ) : workspaceData.workspaceName[0]}
           </Circle>
-          <ShortButton
-            buttonStyle={{
-              width: '96px',
-              height: '36px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              backgroundColor: AppColor.main,
-            }}
-            label='사진 변경'
-            onClick={onChangeImage}
+          <FileButton htmlFor='file-input'>사진 변경</FileButton>
+          <input
+            id='file-input'
+            type='file'
+            style={{display: 'none'}}
+            accept='image/jpg,image/jpeg,image/png'
+            onChange={onChangeImage}
           />
         </div>
         
@@ -280,7 +284,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
                     {myUserId !== userId ? (
                       <>
                         <td style={{width: '14%', textAlign: 'center', padding: '10px 0px', color: AppColor.text.lightblack}}>
-                          <AuthorityDropDown workspaceId={workspaceId} authority={authority} userId={userId} />
+                          <AuthorityDropDown workspaceId={Number(workspaceId)} authority={authority} userId={userId} />
                         </td>
                         <td style={{width: '20%', textAlign: 'center'}}>
                           <KickButton onClick={onClickKickUser(userId)} >
@@ -416,6 +420,20 @@ const AddUserButton = styled.button`
   font-size: 14px;
   color: ${AppColor.etc.white};
   display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+`;
+
+const FileButton = styled.label`
+  display: flex;
+  width: 96px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: ${AppColor.main};
+  color: white;
   align-items: center;
   justify-content: center;
   cursor: pointer;

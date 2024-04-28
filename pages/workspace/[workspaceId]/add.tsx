@@ -42,15 +42,17 @@ const AddTeamSchedule: NextPageWithLayout<AddTeamScheduleProps> = ({}) => {
   const onChangeName = useCallback((e: ChangeEvent<HTMLInputElement>) => {setName(e.target.value)}, []);
   
   
-  const {data: memberList} = useQuery({
-    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USER_BY_WID],
-    queryFn: async () => {
-      const result = await getWorkspaceUserByWId({workspaceId: workspaceId});
+  const {data: memberList} = useQuery(
+    [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId],
+    async () => {
+      const result = await getWorkspaceUserByWId({workspaceId: Number(workspaceId)});
       return result.users.map(u => ({userId: u.userId, nickName: u.nickName}));
     },
-    initialData: [],
-    enabled: !!workspaceId,
-  });
+    {
+      initialData: [],
+      enabled: !!workspaceId,
+    },
+ );
   // const [memberList, setMemberList] = useState([{nickName: '188 코딩클럽', userId: 10}, {nickName: '188 밴드', userId: 11}, {nickName: '김성훈의 마지막 잎새', userId: 13}]);
   const [selectedMemberList, setSelectedMemberList] = useState<{nickName: string; userId: number}[]>([]);
   const onSelectMember = useCallback(
@@ -123,7 +125,7 @@ const AddTeamSchedule: NextPageWithLayout<AddTeamScheduleProps> = ({}) => {
   });
   const onClickSubmitconfirm = useCallback(() => {
     _createSchedule({
-      workspaceId,
+      workspaceId: Number(workspaceId),
       name,
       users: selectedMemberList.map(user => user.userId),
       startDate: dayjs(selectedDate.start).format('YYYYMMDD:HH:mm').toString(),
@@ -132,11 +134,11 @@ const AddTeamSchedule: NextPageWithLayout<AddTeamScheduleProps> = ({}) => {
       content : contentHtml,
     });
     confirmModalCloseModal();
-  }, [workspaceId, name, selectedMemberList, selectedDate, contentHtml, selectedStatus, confirmModalCloseModal]);
+  }, [_createSchedule, workspaceId, name, selectedMemberList, selectedDate, contentHtml, selectedStatus, confirmModalCloseModal]);
   
   return (
     <Container>
-      <PageName pageName={workspaceName} additionalName={name} />
+      <PageName pageName={String(workspaceName)} additionalName={name} />
       
       <div style={{margin: '50px 18%'}}>
         <div style={{display: 'flex', flexDirection: 'column', rowGap: '20px'}}>

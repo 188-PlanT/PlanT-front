@@ -35,7 +35,7 @@ export async function updateSchedule({scheduleId, ...params}: {scheduleId: numbe
   }
 }
 
-export async function updateScheduleState({scheduleId, state}: {scheduleId: number, state: ScheduleStatusType} & SchedulePostDto) {
+export async function updateScheduleState({scheduleId, state}: {scheduleId: number, state: ScheduleStatusType}) {
   try {
     const {data} = await axiosInstance.put(`${prefix}/${scheduleId}/state`, {state});
     return data;

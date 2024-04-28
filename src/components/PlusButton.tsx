@@ -9,7 +9,7 @@ interface PlusButtonProps {
   color?: string;
 }
 
-export default function PlusButton({path, as, backgroundColor, color, ...props}: PlusButtonProps & DetailedHTMLProps<BaseHTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
+export default function PlusButton({path, backgroundColor, color, ...props}: PlusButtonProps & DetailedHTMLProps<BaseHTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
 
   return (
     <Link href={path}>

@@ -46,7 +46,7 @@ export default function AuthorityDropDown({workspaceId, authority, userId}: Auth
   
   const {mutate: _changeWorkspaceUserAuthority} = useMutation(changeWorkspaceUserAuthority, {
     onSuccess: (res) => {
-      queryClient.invalidateQueries({querykey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId], refetchType: 'inactive'});
+      queryClient.invalidateQueries([WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId]);
       console.log(res);
     },
   });
@@ -59,7 +59,7 @@ export default function AuthorityDropDown({workspaceId, authority, userId}: Auth
     };
     _changeWorkspaceUserAuthority(params);
     closeModal();
-  }, [workspaceId, userId, selectedAuthority, closeModal]);
+  }, [workspaceId, userId, selectedAuthority, closeModal, _changeWorkspaceUserAuthority]);
   
   return (
     <div style={{position: 'relative', cursor: 'pointer'}} onClick={onClickDropDown}>

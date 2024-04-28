@@ -14,6 +14,7 @@ export default function useMe() {
 
   const { data: me } = useQuery([USER_QUERY_KEY.GET_MY_INFO], () => getMyInfo(), {
     onSuccess: (res) => {
+      if (!res) return;
       setIsLogedIn(true);
       if (res.state === 'PENDING') {
         router.push('/auth/nickname');

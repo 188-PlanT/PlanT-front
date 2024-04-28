@@ -31,17 +31,19 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
   
   const {scheduleId, workspaceId} = useMemo(() => router.query, [router]);
   
-  const {data} = useQuery({
-    queryKey: [SCHEDULE_QUERY_KEY.GET_SCHEDULE_DETAIL_BY_SID, scheduleId],
-    queryFn: () => getScheduleDetailByScheduleId({scheduleId}),
-    enabled: !!scheduleId,
-    initialData: {users: [], chatList: []},
-    retry: 1,
-    onError: () => {
-      toast.error('접근 할 수 없거나 존재하지 않는 일정입니다.');
-      router.push(`/workspace/${workspaceId}`);
-    }
-  });
+  const {data} = useQuery(
+    [SCHEDULE_QUERY_KEY.GET_SCHEDULE_DETAIL_BY_SID, scheduleId],
+    () => getScheduleDetailByScheduleId({scheduleId: Number(scheduleId)}),
+    {
+      enabled: !!scheduleId,
+      initialData: {users: [], chatList: []},
+      retry: 1,
+      onError: () => {
+        toast.error('접근 할 수 없거나 존재하지 않는 일정입니다.');
+        router.push(`/workspace/${workspaceId}`);
+      }
+    },
+  );
 
   const [formattedDate, setFormattedDate] = useState({
     start: formatDate('', 'YYYY년 MM월 DD일 HH:mm'), 
@@ -67,7 +69,7 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
     onSuccess: () => {
     },
     onSettled: () => {
-      queryClient.invalidateQueries({querykey: [SCHEDULE_QUERY_KEY.GET_SCHEDULE_DETAIL_BY_SID, scheduleId]});
+      queryClient.invalidateQueries([SCHEDULE_QUERY_KEY.GET_SCHEDULE_DETAIL_BY_SID, scheduleId]);
       setComment('');
     },
   });
@@ -75,8 +77,8 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
     setComment(e.target.value);
   }, []);
   const onSubmitComment = useCallback(() => {
-    _createComment({scheduleId, content: comment});
-  }, [scheduleId, comment]);
+    _createComment({scheduleId: Number(scheduleId), content: comment});
+  }, [scheduleId, comment, _createComment]);
   
   const {mutate: _updateScheduleState} = useMutation(updateScheduleState, {
     onSuccess: (data, valiable) => {
@@ -85,7 +87,7 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
     },
   });
   const onClickStatus = useCallback((status: ScheduleStatusType) => () => {
-    _updateScheduleState({scheduleId, state: status});
+    _updateScheduleState({scheduleId: Number(scheduleId), state: status});
   }, [scheduleId, _updateScheduleState]);
   
   const {mutate: _deleteSchedule} = useMutation(deleteSchedule, {
@@ -95,7 +97,7 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
     }
   });
   const onClickDelete = useCallback(() => {
-    _deleteSchedule({scheduleId});
+    _deleteSchedule({scheduleId: Number(scheduleId)});
   }, [scheduleId, _deleteSchedule]);
   
   const onClickEdit = useCallback(() => {
@@ -162,7 +164,7 @@ const TeamSchedule: NextPageWithLayout<TeamScheduleProps> = ({}) => {
             
             <div style={{padding: '10px 0', margin: '0 auto', width: '86%'}}>
               <CommentContainer>
-                {data.chatList.map(c => <ScheduleComment key={c.chatId} scheduleId={scheduleId} chat={c} isMine={myUserId === c.userId} />)}
+                {data.chatList.map(c => <ScheduleComment key={c.chatId} scheduleId={Number(scheduleId)} chat={c} isMine={myUserId === c.userId} />)}
               </CommentContainer>
               <TextInput
                 containerStyle={{backgroundColor: 'transparent', height: '30px', border: 'none', marginTop: '10px', marginLeft: '-10px', position: 'sticky', bottom: '0px'}}

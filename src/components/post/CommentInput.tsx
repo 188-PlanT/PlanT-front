@@ -23,7 +23,7 @@ export default function CommentInput({ postId }: CommentInputProps) {
   });
 
   const onSubmit = useCallback(() => {
-    submitNewComment({ postId, comment });
+    submitNewComment({ scheduleId: postId, content: comment });
   }, [postId, comment, submitNewComment]);
 
   return (

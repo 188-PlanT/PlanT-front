@@ -24,9 +24,7 @@ export default function CommonLayout({ children, title = '', description }: Comm
 
   const queryClient = useQueryClient();
   
-  const { data: {workspaces} } = useQuery([USER_QUERY_KEY.GET_MY_WORKSPACE_LIST], getMyWorkspaceList, {
-    initialData: [],
-  });
+  const { data } = useQuery([USER_QUERY_KEY.GET_MY_WORKSPACE_LIST], getMyWorkspaceList, {});
   
   const { mutate: _logout } = useMutation(logout, {
     onSuccess: () => {
@@ -48,7 +46,7 @@ export default function CommonLayout({ children, title = '', description }: Comm
         {description && <meta name='description' content={description} />}
       </Head>
       <div style={{display: 'flex'}}>
-        <SideBar nickName={me?.nickName || ''} profile={me?.profile || ''} workspaces={workspaces || []} />
+        <SideBar nickName={me?.nickName || ''} profile={me?.profile || ''} workspaces={data?.workspaces || []} />
         <Main>{children}</Main>
       </div>
     </>

@@ -30,7 +30,7 @@ interface EditTeamScheduleProps {}
 const EditTeamSchedule: NextPageWithLayout<EditTeamScheduleProps> = ({}) => {
   const router = useRouter();
   
-  const query = useMemo(() => qs.parse(router.query), [router]);
+  const query = useMemo(() => qs.parse(qs.stringify(router.query)) as any, [router]);
   
   const scheduleId = useMemo(() => router.query.scheduleId, [router]);
   const workspaceId = useMemo(() => router.query.workspaceId, [router]);
@@ -39,15 +39,17 @@ const EditTeamSchedule: NextPageWithLayout<EditTeamScheduleProps> = ({}) => {
   const [name, setName] = useState('');
   const onChangeName = useCallback((e: ChangeEvent<HTMLInputElement>) => {setName(e.target.value)}, []);
   
-  const {data: memberList} = useQuery({
-    queryKey: [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USER_BY_WID],
-    queryFn: async () => {
-      const result = await getWorkspaceUserByWId({workspaceId: workspaceId});
+  const {data: memberList} = useQuery(
+    [WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId],
+    async () => {
+      const result = await getWorkspaceUserByWId({workspaceId: Number(workspaceId)});
       return result.users.map(u => ({userId: u.userId, nickName: u.nickName}));
     },
-    initialData: [],
-    enabled: !!workspaceId,
-  });
+    {
+      initialData: [],
+      enabled: !!workspaceId,
+    },
+  );
   const [selectedMemberList, setSelectedMemberList] = useState<{nickName: string; userId: number}[]>([]);
   const onSelectMember = useCallback(
     (user: {nickName: string; userId: number}) => () => {
@@ -111,7 +113,7 @@ const EditTeamSchedule: NextPageWithLayout<EditTeamScheduleProps> = ({}) => {
   });
   const onSubmitEdit = useCallback(() => {
     const params = {
-      scheduleId,
+      scheduleId: Number(scheduleId),
       name: name,
       users: selectedMemberList.map(u => u.userId),
       startDate: formatDate(selectedDate.start, 'YYYYMMDD:HH:mm'),
@@ -121,7 +123,7 @@ const EditTeamSchedule: NextPageWithLayout<EditTeamScheduleProps> = ({}) => {
     };
     console.log(params);
     _updateSchedule(params);
-  }, [scheduleId, name, selectedMemberList, selectedDate, contentHtml, selectedStatus]);
+  }, [_updateSchedule, scheduleId, name, selectedMemberList, selectedDate, contentHtml, selectedStatus]);
   
   return (
     <Container>

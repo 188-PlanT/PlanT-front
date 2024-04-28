@@ -1,5 +1,5 @@
 import { CombinedState, configureStore, Reducer } from '@reduxjs/toolkit';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch, TypedUseSelectorHook  } from 'react-redux';
 import { Context, createWrapper } from 'next-redux-wrapper';
 import rootReducer, { RootStates } from './reducer';
 

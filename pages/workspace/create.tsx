@@ -48,10 +48,12 @@ const CreateWorkspace: NextPageWithLayout<CreateWorkspaceProps> = ({}) => {
     validationSchema: Yup.object({
       name: Yup.string().max(30, '30자 이내 팀 이름을 입력해 주세요.').required('30자 이내 팀 이름을 입력해 주세요.'),
     }),
+    onSubmit: () => {},
   });
   
   const [profile, setProfile] = useState('');
-  const onChangeImage = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
+  const onChangeImage = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    /*
     const { files, name } = e.target;
     console.log(files, name);
     // TODO 이미지 업로드 연동 진행 중
@@ -71,6 +73,7 @@ const CreateWorkspace: NextPageWithLayout<CreateWorkspaceProps> = ({}) => {
             console.error(error);
           });
     }
+    */
   }, []);
   
   const onChangeSearchInput = useCallback((e: ChangeEvent<HTMLInputElement>) => {
@@ -93,7 +96,7 @@ const CreateWorkspace: NextPageWithLayout<CreateWorkspaceProps> = ({}) => {
   const queryClient = useQueryClient();
   const { mutate: _createWorkspace } = useMutation(createWorkspace, {
     onSuccess: (res) => {
-      queryClient.invalidateQueries({querykey: [USER_QUERY_KEY.GET_MY_WORKSPACE_LIST]});
+      queryClient.invalidateQueries([USER_QUERY_KEY.GET_MY_WORKSPACE_LIST]);
       console.log(res);
       router.push(`/workspace/${res.workspaceId}`);
     },
@@ -110,7 +113,7 @@ const CreateWorkspace: NextPageWithLayout<CreateWorkspaceProps> = ({}) => {
     }
     const memberUIdList = candidateUserList.map(user => user.userId);
     await _createWorkspace({users: memberUIdList, name: values.name, ...(profile && {profile})});
-  }, [values, candidateUserList, profile]);
+  }, [values, candidateUserList, profile, _createWorkspace]);
   
   return (
     <Container>
@@ -155,9 +158,7 @@ const CreateWorkspace: NextPageWithLayout<CreateWorkspaceProps> = ({}) => {
             <label htmlFor='워크스페이스 프로필 이미지 업로드'>사진 변경</label>
             <input
               style={{ display: 'none' }}
-              label='사진 변경'
               id='워크스페이스 프로필 이미지 업로드'
-              name='워크스페이스 프로필 이미지 업로드'
               onChange={onChangeImage}
               type='file'
               accept='image/png, image/jpg, image/jpeg'

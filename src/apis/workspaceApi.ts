@@ -11,7 +11,7 @@ export const WORKSPACE_QUERY_KEY = {
   GET_WORKSPACE_SCHEDULES_BY_DATE: 'getWorkspaceSchedulesByDate',
 };
 
-export async function createWorkspace(params: {users: number[]; name: string; profile: string}) {
+export async function createWorkspace(params: {users: number[]; name: string; profile?: string}) {
   try {
     const {data} = await axiosInstance.post(`${prefix}`, params);
     return data;
@@ -50,12 +50,12 @@ export async function getWorkspaceUserByWId(
     workspaceName: string;
     profile: string;
     users: {
-      userId: string;
+      userId: number;
       email: string;
       nickName: string;
       authority: 'ADMIN' | 'USER' | 'PENDING';
     }[];
-  } | undefined> {
+  }> {
   try {
     const {
       data,
@@ -83,7 +83,7 @@ export async function addWorkspaceUser(
       nickName: string;
       authority: 'ADMIN' | 'USER' | 'PENDING';
     }[];
-  } | undefined> {
+  }> {
   try {
     const {
       data,
@@ -146,7 +146,7 @@ export async function getWorkspaceCalendarByMonth({workspaceId, month}: {workspa
   }
 }
 
-export async function getWorkspaceSchedulesByDate({workspaceId, date}: {workspaceId: number; month: string}) {
+export async function getWorkspaceSchedulesByDate({workspaceId, date}: {workspaceId: number; date: string}) {
   try {
     const {
       data,
