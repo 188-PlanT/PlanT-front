@@ -33,7 +33,7 @@ interface AddPersonalScheduleProps {}
 const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) => {
   const router = useRouter();
   
-  const { data: {workspaces: workspaceList} } = useQuery([USER_QUERY_KEY.GET_MY_WORKSPACE_LIST], getMyWorkspaceList, {
+  const { data } = useQuery([USER_QUERY_KEY.GET_MY_WORKSPACE_LIST], getMyWorkspaceList, {
     initialData: {userId: 0, workspaces: []},
   });
 
@@ -161,7 +161,7 @@ const AddPersonalSchedule: NextPageWithLayout<AddPersonalScheduleProps> = ({}) =
           <div style={{display: 'flex', alignItems: 'center', marginTop: '10px', columnGap: '16px'}}>
             <Image src={FolderIcon} alt='폴더 이모지' width={46} height={32} />
             <WorkspaceDropDown
-              workspaceList={workspaceList}
+              workspaceList={data?.workspaces || []}
               value={selectedWorkspace}
               onChangeValue={(value) => () => setSelectedWorkspace(value)}
             />
