@@ -1,6 +1,7 @@
 import AppColor from '@styles/AppColor';
 import styled from '@emotion/styled';
 import Image from 'next/image';
+import Link from 'next/link';
 import Logo from '@public/image/logo.png';
 import WorkspaceProfile from '@components/WorkspaceProfile';
 import PlusButton from '@components/PlusButton';
@@ -23,7 +24,9 @@ export default function SideBar({
   return (
     <Container>
       <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-        <Image src={Logo} alt='플랜티 로고' width={52} height={13} />
+        <Link href='/workspace/personal'>
+          <Image src={Logo} alt='플랜티 로고' style={{cursor: 'pointer'}} width={52} height={13} />
+        </Link>
 
         <div style={{marginTop: '26px'}}>
           <WorkspaceProfile isMine workspaceName={`${nickName}의 워크스페이스`} imageUrl={profile} />
