@@ -171,33 +171,27 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
       setProfile(workspaceData.profile);
     }
   }, [workspaceData])
-  const onChangeImage = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    /*
+  const onChangeImage = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
     const { files, name } = e.target;
-    console.log(files, name);
-    // TODO 이미지 업로드 연동 진행 중
     if (files && files.length > 0) {
       const image = files[0];
       const formData = new FormData();
-      formData.enctype='multipart/form-data';
       formData.append('image', image);
-      console.log(formData);
       await uploadImage(formData)
-          .then((res: string) => {
-            console.log(res);
-            setProfile(res);
-            return;
+          .then(async (res?: string) => {
+            if (!res) return;
+            await _updateWorkspaceInfo({workspaceId: Number(workspaceId), profile: res});
           })
           .catch((error) => {
             console.error(error);
           });
     }
-    */
-  }, []);
+  }, [workspaceId]);
   
   
   const {mutate: _updateWorkspaceInfo} = useMutation(updateWorkspaceInfo, {
-    onSuccess: () => {
+    onSuccess: (data, valiable) => {
+      if (valiable.profile) setProfile(valiable.profile);
       queryClient.invalidateQueries([WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId]);
       toast.success('워크스페이스 정보가 성공적으로 변경되었습니다.');
     },
@@ -206,7 +200,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
     },
   });
   const updateWorkspace = useCallback(() => {
-    _updateWorkspaceInfo({workspaceId: Number(workspaceId), name: values.name, profile}); //TODO 나중에 이미지 업로드 연동 후 profile 추가 가능
+    _updateWorkspaceInfo({workspaceId: Number(workspaceId), name: values.name});
   }, [workspaceId, values, profile, _updateWorkspaceInfo]);
   
   return (
@@ -216,7 +210,7 @@ const WorkspaceSetting: NextPageWithLayout<WorkspaceSettingProps> = ({}) => {
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '120px', rowGap: '18px'}}>
           <Circle>
             {profile ? (
-              <Image width={112} height={112} style={{borderRadius: '100%'}} src={profile} alt='프로필 이미지' />
+              <Image objectFit='cover' width={112} height={112} style={{borderRadius: '100%'}} src={profile} alt='프로필 이미지' />
             ) : workspaceData.workspaceName[0]}
           </Circle>
           <FileButton htmlFor='file-input'>사진 변경</FileButton>

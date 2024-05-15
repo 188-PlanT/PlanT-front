@@ -52,28 +52,22 @@ const CreateWorkspace: NextPageWithLayout<CreateWorkspaceProps> = ({}) => {
   });
   
   const [profile, setProfile] = useState('');
-  const onChangeImage = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    /*
+  const onChangeImage = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
     const { files, name } = e.target;
     console.log(files, name);
-    // TODO 이미지 업로드 연동 진행 중
     if (files && files.length > 0) {
       const image = files[0];
       const formData = new FormData();
-      formData.enctype='multipart/form-data';
       formData.append('image', image);
-      console.log(formData);
       await uploadImage(formData)
-          .then((res: string) => {
-            console.log(res);
-            setProfile(res);
+          .then((res?: string) => {
+            setProfile(res ? res : '');
             return;
           })
           .catch((error) => {
             console.error(error);
           });
     }
-    */
   }, []);
   
   const onChangeSearchInput = useCallback((e: ChangeEvent<HTMLInputElement>) => {
@@ -151,7 +145,7 @@ const CreateWorkspace: NextPageWithLayout<CreateWorkspaceProps> = ({}) => {
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '120px', rowGap: '18px'}}>
           <Circle>
             {profile ? (
-              <Image width={112} height={112} src={profile} alt='프로필 이미지' />
+              <Image objectFit='cover' width={112} height={112} src={profile} alt='프로필 이미지' />
             ) : values.name[0]}
           </Circle>
           <ImageUploadButton>

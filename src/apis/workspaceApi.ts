@@ -124,7 +124,7 @@ export async function changeWorkspaceUserAuthority({workspaceId, userId, authori
   }
 }
 
-export async function updateWorkspaceInfo({workspaceId, name, profile}: {workspaceId: number; name: string; profile?: string}) {
+export async function updateWorkspaceInfo({workspaceId, name, profile}: {workspaceId: number; name?: string; profile?: string}): Promise<{workspaceId: number;	name: string;	profile: string}> {
   try {
     const {
       data,

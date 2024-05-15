@@ -10,20 +10,26 @@ import { useRouter } from 'next/router';
 import { useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
 import AppColor from '@styles/AppColor';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, ChangeEvent } from 'react';
 import { toast } from 'react-toastify';
 import { useAppSelector } from '@store/configStore';
 import { selectMe } from '@store/slices/user';
 import { checkNickname } from '@apis/authApi';
 import { changeMyInfo } from '@apis/userApi';
+import { uploadImage } from '@apis/fileApi';
 
 interface MyPageProps {}
 
 const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
   const myInfo = useAppSelector(selectMe);
 
-  const profile = '';
-  // const profile = "https://proxy.goorm.io/service/659153b0a304480d411a9131_d4drKhidbvkV1Nc3HZz.run.goorm.io/9080/file/load/naver_icon.png?path=d29ya3NwYWNlJTJGMTg4X3Byb2plY3RfZnJvbnQlMkZwdWJsaWMlMkZpbWFnZSUyRm5hdmVyX2ljb24ucG5n&docker_id=d4drKhidbvkV1Nc3HZz&secure_session_id=FwAk5nbeqzeCsQeB1gYNcmHCbmXTAtq4";
+  const [profile, setProfile] = useState('');
+
+  useEffect(() => {
+    if (myInfo?.profile) {
+      setProfile(myInfo.profile);
+    }
+  }, [myInfo])
   
   const router = useRouter();
 
@@ -69,6 +75,7 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
         currentPassword: values.currentPassword,
         nickName: values.nickname,
         ...(values.password && {newPassword: values.password}),
+        ...(profile && {profile}),
       };
       _changeMyInfo(params);
     },
@@ -103,6 +110,24 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
     _checkNickname({nickName: values.nickname});
   }, [values, _checkNickname]);
   
+  const onChangeImage = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
+    const { files, name } = e.target;
+    console.log(files, name);
+    if (files && files.length > 0) {
+      const image = files[0];
+      const formData = new FormData();
+      formData.append('image', image);
+      await uploadImage(formData)
+          .then((res?: string) => {
+            setProfile(res ? res : '');
+            return;
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+    }
+  }, []);
+  
   return (
     <Container style={{width: '100%'}}>
       <PageName pageName='개인 환경설정' />
@@ -110,20 +135,16 @@ const MyPage: NextPageWithLayout<MyPageProps> = ({}) => {
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '120px', rowGap: '18px'}}>
           <Circle>
             {profile ? (
-              <Image width={112} height={112} src={profile} alt='프로필 이미지' />
+              <Image objectFit='cover' width={112} height={112} style={{borderRadius: '100%'}} src={profile} alt='프로필 이미지' />
             ) : myInfo?.nickName[0]}
           </Circle>
-          <ButtonShort
-            buttonStyle={{
-              width: '96px',
-              height: '36px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              backgroundColor: AppColor.main,
-            }}
-            label='사진 변경'
-            onClick={() => {}}
+          <FileButton htmlFor='file-input'>사진 변경</FileButton>
+          <input
+            id='file-input'
+            type='file'
+            style={{display: 'none'}}
+            accept='image/jpg,image/jpeg,image/png'
+            onChange={onChangeImage}
           />
         </div>
         
@@ -274,4 +295,18 @@ const Circle = styled.div`
   color: ${AppColor.text.signature};
   font-size: 40px;
   font-weight: bold;
+`;
+
+const FileButton = styled.label`
+  display: flex;
+  width: 96px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: ${AppColor.main};
+  color: white;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 `;
