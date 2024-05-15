@@ -18,7 +18,7 @@ const nextConfig = {
   },
   */
   images: {
-    domains: ['proxy.goorm.io', 'plant-s3.s3.ap-northeast-2.amazonaws.com', 'daino22is214z.cloudfront.net'],
+    domains: ['proxy.goorm.io', 'plant-s3.s3.ap-northeast-2.amazonaws.com', 'daino22is214z.cloudfront.net', 'd12v02yfguudwt.cloudfront.net'],
   },
   // async redirects() {
   //   return [

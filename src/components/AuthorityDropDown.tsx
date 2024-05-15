@@ -46,8 +46,7 @@ export default function AuthorityDropDown({workspaceId, authority, userId}: Auth
   
   const {mutate: _changeWorkspaceUserAuthority} = useMutation(changeWorkspaceUserAuthority, {
     onSuccess: (res) => {
-      queryClient.invalidateQueries([WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID, workspaceId]);
-      console.log(res);
+      queryClient.invalidateQueries([WORKSPACE_QUERY_KEY.GET_WORKSPACE_USERS_BY_WID]);
     },
   });
   
