@@ -37,8 +37,8 @@ const Login: NextPageWithLayout<LoginProps> = ({}) => {
       toast.success('로그인 성공');
       router.push('/workspace/personal')
     },
-    onError: (e) => {
-      toast.error(e?.message ? e.message : '로그인에 실패하였습니다. 잠시후 다시 시도해주세요.');
+    onError: (e: {message: string; code: number}) => {
+      toast.error(e.message ? e.message : '로그인에 실패하였습니다. 잠시후 다시 시도해주세요.');
     },
   });
 
