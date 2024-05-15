@@ -4,6 +4,7 @@ import styled from '@emotion/styled';
 import { NextPageWithLayout } from 'pages/_app';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { useCallback } from 'react';
 import ButtonShort from '@components/atoms/ShortButton';
 import AppColor from '@styles/AppColor';
 import { useRouter } from 'next/router';
@@ -11,9 +12,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { login } from '@apis/authApi';
 import { useMutation } from '@tanstack/react-query';
-import GoogleIcon from '@public/image/google_icon.png';
 import NaverIcon from '@public/image/naver_icon.png';
-import {toast} from 'react-toastify';
+import { toast } from 'react-toastify';
 
 interface LoginProps {}
 
@@ -41,6 +41,11 @@ const Login: NextPageWithLayout<LoginProps> = ({}) => {
       toast.error(e.message ? e.message : '로그인에 실패하였습니다. 잠시후 다시 시도해주세요.');
     },
   });
+  
+  const onLoginByNaver = useCallback(() => {
+    //TODO naver 로그인 연동
+    console.log('naver 로그인 시도');
+  }, []);
 
   return (
     <Container>
@@ -95,10 +100,7 @@ const Login: NextPageWithLayout<LoginProps> = ({}) => {
           </div>
           
           <div style={{display:'flex', justifyContent: 'center', columnGap: '40px', width: '100%', padding: '0px 28px'}}>
-            <SocialLoginButton onClick={() => {}}>
-              <Image width='50px' height='50px' alt='구글 로그인 로고' src={GoogleIcon} />
-            </SocialLoginButton>
-            <SocialLoginButton onClick={() => {}}>
+            <SocialLoginButton onClick={onLoginByNaver}>
               <Image width='50px' height='50px' alt='네이버 로그인 로고' src={NaverIcon} />
             </SocialLoginButton>
           </div>
