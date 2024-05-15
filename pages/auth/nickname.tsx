@@ -8,7 +8,6 @@ import ShortButton from '@components/atoms/ShortButton';
 import AppColor from '@styles/AppColor';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { login } from '@apis/authApi';
 import { useMutation } from '@tanstack/react-query';
 import { checkNickname, setNickname } from '@apis/authApi';
 import { USER_QUERY_KEY } from '@apis/userApi';

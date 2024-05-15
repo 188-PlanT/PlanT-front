@@ -13,6 +13,7 @@ import { login } from '@apis/authApi';
 import { useMutation } from '@tanstack/react-query';
 import GoogleIcon from '@public/image/google_icon.png';
 import NaverIcon from '@public/image/naver_icon.png';
+import {toast} from 'react-toastify';
 
 interface LoginProps {}
 
@@ -32,7 +33,13 @@ const Login: NextPageWithLayout<LoginProps> = ({}) => {
   });
 
   const { mutate: _login } = useMutation(login, {
-    onSuccess: () => router.push('/workspace/personal'),
+    onSuccess: () => {
+      toast.success('로그인 성공');
+      router.push('/workspace/personal')
+    },
+    onError: (e) => {
+      toast.error(e?.message ? e.message : '로그인에 실패하였습니다. 잠시후 다시 시도해주세요.');
+    },
   });
 
   return (
