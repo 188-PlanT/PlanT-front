@@ -46,18 +46,18 @@ const Login: NextPageWithLayout<LoginProps> = ({}) => {
   const onLoginByNaver = useCallback(async () => {
     //TODO naver 로그인 연동
     console.log('naver 로그인 시도');
-    await axiosInstance.get(
-      `https://nid.naver.com/oauth2.0/authorize?response_type=code&state=none&client_id=${process.env.NEXT_PUBLIC_NAVER_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_NAVER_REDIRECT_URI}`
-    ).then(async (code) => {
-      await naverLogin({code})
-        .then(() => {
-          toast.success('로그인 성공');
-          router.push('/workspace/personal');
-        });
-    }).catch(error => {
-      console.error(error);
-      toast.error('네이버 로그인에 실패하였습니다. 잠시후 다시 시도해주세요.');
-    });
+    // await axiosInstance.get(
+    //   `https://nid.naver.com/oauth2.0/authorize?response_type=code&state=none&client_id=${process.env.NEXT_PUBLIC_NAVER_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_NAVER_REDIRECT_URI}`
+    // ).then(async (code) => {
+    //   await naverLogin({code})
+    //     .then(() => {
+    //       toast.success('로그인 성공');
+    //       router.push('/workspace/personal');
+    //     });
+    // }).catch(error => {
+    //   console.error(error);
+    //   toast.error('네이버 로그인에 실패하였습니다. 잠시후 다시 시도해주세요.');
+    // });
   }, [router]);
 
   return (
@@ -114,7 +114,9 @@ const Login: NextPageWithLayout<LoginProps> = ({}) => {
           
           <div style={{display:'flex', justifyContent: 'center', columnGap: '40px', width: '100%', padding: '0px 28px'}}>
             <SocialLoginButton onClick={onLoginByNaver}>
-              <Image width='50px' height='50px' alt='네이버 로그인 로고' src={NaverIcon} />
+              <Link href={`https://nid.naver.com/oauth2.0/authorize?response_type=code&state=none&client_id=${process.env.NEXT_PUBLIC_NAVER_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_NAVER_REDIRECT_URI}`}>
+                <Image width='50px' height='50px' alt='네이버 로그인 로고' src={NaverIcon} />
+              </Link>
             </SocialLoginButton>
           </div>
           
