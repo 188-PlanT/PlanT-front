@@ -26,6 +26,20 @@ export async function login(params: { email: string; password: string }): Promis
   }
 }
 
+export async function naverLogin({code}: {code: string}) {
+  try {
+    const {
+      data: {accessToken, refreshToken}
+    } = await axiosInstance.post(`${prefix}/login/oauth2`, {code, provider: 'naver'});
+    localStorage.setItem('accessToken', accessToken);
+    axiosInstance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+    return { accessToken, refreshToken };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export async function logout() {
   localStorage.removeItem('accessToken');
   axiosInstance.defaults.headers.common.Authorization = undefined;

@@ -10,10 +10,11 @@ import AppColor from '@styles/AppColor';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
-import { login } from '@apis/authApi';
+import { login, naverLogin } from '@apis/authApi';
 import { useMutation } from '@tanstack/react-query';
 import NaverIcon from '@public/image/naver_icon.png';
 import { toast } from 'react-toastify';
+import axiosInstance from '@utils/axios';
 
 interface LoginProps {}
 
@@ -35,17 +36,29 @@ const Login: NextPageWithLayout<LoginProps> = ({}) => {
   const { mutate: _login } = useMutation(login, {
     onSuccess: () => {
       toast.success('로그인 성공');
-      router.push('/workspace/personal')
+      router.push('/workspace/personal');
     },
     onError: (e: {message: string; code: number}) => {
       toast.error(e.message ? e.message : '로그인에 실패하였습니다. 잠시후 다시 시도해주세요.');
     },
   });
   
-  const onLoginByNaver = useCallback(() => {
+  const onLoginByNaver = useCallback(async () => {
     //TODO naver 로그인 연동
     console.log('naver 로그인 시도');
-  }, []);
+    await axiosInstance.get(
+      `https://nid.naver.com/oauth2.0/authorize?response_type=code&state=none&client_id=${process.env.NEXT_PUBLIC_NAVER_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_NAVER_REDIRECT_URI}`
+    ).then(async (code) => {
+      await naverLogin({code})
+        .then(() => {
+          toast.success('로그인 성공');
+          router.push('/workspace/personal');
+        });
+    }).catch(error => {
+      console.error(error);
+      toast.error('네이버 로그인에 실패하였습니다. 잠시후 다시 시도해주세요.');
+    });
+  }, [router]);
 
   return (
     <Container>
@@ -143,6 +156,7 @@ const SocialLoginButton = styled.button`
   height: 50px;
   border-radius: 100%;
   border: none;
+  cursor: pointer;
 `;
 
 // <ButtonShort
