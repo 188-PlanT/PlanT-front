@@ -4,7 +4,6 @@ import styled from '@emotion/styled';
 import { NextPageWithLayout } from 'pages/_app';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { useCallback } from 'react';
 import ButtonShort from '@components/atoms/ShortButton';
 import AppColor from '@styles/AppColor';
 import { useRouter } from 'next/router';
@@ -14,7 +13,6 @@ import { login } from '@apis/authApi';
 import { useMutation } from '@tanstack/react-query';
 import NaverIcon from '@public/image/naver_icon.png';
 import { toast } from 'react-toastify';
-import axiosInstance from '@utils/axios';
 
 interface LoginProps {}
 
