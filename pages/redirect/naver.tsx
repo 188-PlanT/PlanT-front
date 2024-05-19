@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 export default function NaverRedirect() {
   const router = useRouter();
   
-  const code = useMemo(() => router.query?.code ? String(router.query.code) || '', [router]);
+  const code = useMemo(() => router.query?.code ? String(router.query.code) : '', [router]);
   
   useEffect(() => {
     if (code) {
